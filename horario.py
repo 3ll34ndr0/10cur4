@@ -3,8 +3,9 @@ class Horario(object):
 	Objeto para guardar el horario de una actividad
 	TODO: Quizas seria mas legible si fuese este formato:
 	{'horarios': {{'initHour':'10'}: [{'endHour':'11'}, {'quota':'3'}, {'participants':set(['351519348', '35151938', '3515193486'])]}}, 'name': 'Bldy'}
+	Quota is 1 as default
 	'''
-	def __init__(self,activity,initHour,endHour,quota, participant=None):
+	def __init__(self,activity,initHour,endHour,quota='1', participant=None):
 		appointment 	= {}
 		turnos	 	= {}
 		appointment[initHour] = [endHour,quota,set([])]
@@ -34,7 +35,7 @@ class Horario(object):
 #		print("Quota %s" % qota )
 
 
-	def addAppointment(self,initHour,endHour,quota, participant=None):
+	def addAppointment(self,initHour,endHour,quota='1', participant=None):
 		'''
 		Params: initHour, endHour,quota
 		'''

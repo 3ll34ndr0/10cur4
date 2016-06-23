@@ -9,7 +9,7 @@ def createActivityRegister(
 		activity,
 		initHour=None,
 		endHour=None,
-		quota=None, 
+		quota='1', 
 		description=None, 
 		vCalendar=None):
     '''
@@ -49,7 +49,8 @@ def modifyActivityRegister(
 		activity,
 		initHour,
 		endHour=None,
-		quota=None,
+		quota='1',
+		participants=None,
 		description=None,
 		vCalendar=None):
     '''
@@ -63,24 +64,27 @@ def modifyActivityRegister(
 	Dia: lunes|martes|... en minusculas.
 	Hora: HH:MM
     '''
-    # Primero tengo que obtener de la tabla, lo que haya
-    parametros = (initHour,endHour,quota,description,vCalendar)
+    # Primero tengo que obtener de la base de datos, lo que haya
     activityRegister = getActivityRegister(database, activity)
-    # Luego transformalo en un objeto clase Horario
     if activityRegister[0] == activity:
+           # Luego transformalo en un objeto clase Horario
 	   horarios = json.loads(activityRegister[1]) 
 	   h = horarios['horarios']
 	   for key in h.viewkeys():
-		       objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
-		       # Recupero los valores para no pisarlos despues (solo el que modifica)
-		       if initHour == key:
-		 	     participants = objetoHorario.horarios[key][2]
-			     print objetoHorario.horarios[key][2]
-		             if endHour == None:
-			        endHour = objetoHorario.horarios[key][0]
-		             if quota == None:
-			        quota = objetoHorario.horarios[key][1]
-		       print("{}, {}, {}".format(key, h[key][0],h[key][1]))
+	       objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
+	       # Recupero los valores para no pisarlos despues (solo el que modifica)
+               if initHour == key:
+		     if participants == None:
+			participants = objetoHorario.horarios[key][2]
+		        print objetoHorario.horarios[key][2]
+		     if endHour     == None:
+		        endHour = objetoHorario.horarios[key][0]
+		     if quota       == '1':
+		        quota = objetoHorario.horarios[key][1]
+               else:
+		     print("Appointment {key} is not going to be modified".format(key))
+	       print("{}, {}, {}, {}".format(key, h[key][0],h[key][1],h[key][2]))
+	   
            # Ya tengo el objeto, ahora puedo actualizarlo:
 	   objetoHorario.addAppointment(initHour,endHour,quota, participants)
            horariosJSON  = json.dumps(objetoHorario, default=jdefault)
@@ -90,9 +94,19 @@ def modifyActivityRegister(
     try:	
 	db = sqlite3.connect(database)
         cursor = db.cursor()
-	# Aca va un update.
-	cursor.execute('''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''', (horariosJSON, activity))
-	message = "Message: {}, {}, {}, {} added to {}".format(horarios, quota, description, vCalendar, activity ) 
+	# Aca va un update only horario column.
+	cursor.execute(
+	'''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''', (horariosJSON, activity))
+	message = "Message: {}, ".format(horariosJSON)
+	if description is not None:
+	    cursor.execute(
+	    '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, activity))
+            message += "{}, ".format(description) 
+	if vCalendar is not None:
+	    cursor.execute(
+	    '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, activity))
+	    message += "{}, ".format(vCalendar) 
+	message += "added to {}".format(activity) 
 	db.commit()
     except sqlite3.IntegrityError as e:
 	db.rollback()
@@ -102,7 +116,6 @@ def modifyActivityRegister(
 	raise e
     finally:
 	cursor.close()
-	
     return message
 
 def addActivityParticipant(
@@ -113,7 +126,6 @@ def addActivityParticipant(
     # First get the data from DB and load it in the Horario object
     message = ''
     activityRegister = getActivityRegister(database, activity)
-#    print(activityRegister)
     # Luego transformalo en un objeto clase Horario
     if activityRegister[0] == activity:
 	   horarios = json.loads(activityRegister[1]) 
