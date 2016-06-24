@@ -69,24 +69,34 @@ def modifyActivityRegister(
     if activityRegister[0] == activity:
            # Luego transformalo en un objeto clase Horario
 	   horarios = json.loads(activityRegister[1]) 
+	   print(horarios)
 	   h = horarios['horarios']
+	   print(h[initHour][2])
 	   for key in h.viewkeys():
 	       objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
+	       print("dentro el for")
+	       print(h[key][2])
+	       print(objetoHorario.horarios[key][2])
 	       # Recupero los valores para no pisarlos despues (solo el que modifica)
                if initHour == key:
-		     if participants == None:
-			participants = objetoHorario.horarios[key][2]
-		        print objetoHorario.horarios[key][2]
+	             participantsReg = objetoHorario.horarios[key][2]
+		     print("aca")
+		     print objetoHorario.horarios
+		     print(participantsReg)
+		     if participants is not None:
+			print("New participants, but recovering old ones: {}".format(participantsReg))
+#			print(participantsReg)
+		        participantsReg.update(participants)
 		     if endHour     == None:
 		        endHour = objetoHorario.horarios[key][0]
 		     if quota       == '1':
 		        quota = objetoHorario.horarios[key][1]
                else:
 		     print("Appointment {key} is not going to be modified".format(key))
-	       print("{}, {}, {}, {}".format(key, h[key][0],h[key][1],h[key][2]))
+	       print("{}, {}, {}, {}".format(key, h[key][0],h[key][1],participantsReg))
 	   
            # Ya tengo el objeto, ahora puedo actualizarlo:
-	   objetoHorario.addAppointment(initHour,endHour,quota, participants)
+	   objetoHorario.addAppointment(initHour,endHour,quota, participantsReg)
            horariosJSON  = json.dumps(objetoHorario, default=jdefault)
 	   print(horariosJSON)
     else: 

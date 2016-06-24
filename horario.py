@@ -8,7 +8,11 @@ class Horario(object):
 	def __init__(self,activity,initHour,endHour,quota='1', participant=None):
 		appointment 	= {}
 		turnos	 	= {}
-		appointment[initHour] = [endHour,quota,set([])]
+		if participant is not None:
+			participantSet = set(participant)
+		else: 
+			participantSet = set([])
+		appointment[initHour] = [endHour,quota,participantSet]
 		turnos[activity] = appointment
 		self.name	= activity
 		self.horarios = turnos[activity]
