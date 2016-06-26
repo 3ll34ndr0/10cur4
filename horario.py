@@ -2,7 +2,7 @@ class Horario(object):
 	'''
 	Objeto para guardar el horario de una actividad
 	TODO: Quizas seria mas legible si fuese este formato:
-	{'horarios': {{'initHour':'10'}: [{'endHour':'11'}, {'quota':'3'}, {'participants':set(['351519348', '35151938', '3515193486'])]}}, 'name': 'Bldy'}
+	{'horarios': {{'initHour':'10'}: [{'endHour':'11'}, {'quota':'3'}, {'participants':set(['351519348', '35151938', '3515204597'])]}}, 'name': 'Bldy'}
 	Quota is 1 as default
 	'''
 	def __init__(self,activity,initHour,endHour,quota='1', participant=None):
@@ -88,14 +88,4 @@ class Horario(object):
 			raise e
 		finally:
 			return message 
-
-#claseJorge = Horario('Bldy','10','11','3')
-##claseJorge.addParticipant('10','3515193486')
-#claseJorge.removeParticipant('10','3515193486')
-#claseJorge.removeParticipant('10','3515193486')
-#
-#claseJorge.addParticipant('10','351519348')
-#claseJorge.addParticipant('10','35151938')
-#claseJorge.__dict__
-#claseJorge.addParticipant('10','3515193')
 
