@@ -3,6 +3,138 @@ import json
 from horario import Horario
 #           hourList = []
 #	    daySchedule{}  = emptyDict[day.lower():hourList.append((initHour, endHour)]}
+
+class Algo(object):
+	def __init__(una):
+		self.veri = una
+
+
+class ActivityRegister(object):
+    '''
+    I will try to create an object to handle the activity register in database
+    '''
+    def __init__(self,
+		database,
+		activity,
+		initHour):
+        areg = getActivityRegister(database,activity) 
+	ar = json.loads(getActivityRegister(database,activity)[1])
+        self.activity     = activity
+	self.initHour     = initHour
+	self.endHour      = ar['horarios'][initHour][0]
+	self.quota        = ar['horarios'][initHour][1]
+	self.participants = ar['horarios'][initHour][2]
+	self.description  = areg[3]
+	self.vCalendar    = areg[4]
+	self.name         = areg[0] 
+	self.defaultQuota = areg[2]
+	self.database     = database
+    def update(self,
+		endHour=None,
+		quota='1',
+		participants=None,
+		description=None,
+		vCalendar=None):
+        # Update endHour and quota:
+        if endHour == None:
+	    endHour = self.endHour
+	else:
+	    self.endHour = endHour
+        if quota   == '1':
+	    quota = self.quota
+	else :
+	    self.quota = quota
+        #
+	# Create temporary Horario object with updated values, except for participants
+        objetoHorario = Horario(self.name, self.initHour,endHour,quota,self.participants)
+	# 
+	# Update participants: We'll add or remove any number of participants given as 
+	#                      string, set or list. If number starts with '-', it'll
+	#                      be removed from participants' set, otherwise it'll be
+	#                      added to it.
+	#
+        if participants is not None:
+	    delParticipants = []
+	    addParticipants = []
+	    if type(participants) is str:
+                if participants.startswith('-'):
+		     # create remove
+                     delParticipants = participants.strip('-')
+		elif participants.isdigit():
+		     # create Add
+		     addParticipants = participants
+		else:
+		     print("Participant is not a valid telephon number")
+	    elif type(participants) is list:
+                # Create a list with numbers to remove from participants:
+		delParticipants = set([item.strip('-') for item in participants if item.startswith('-')])
+	        # Create a list with numbers to add to participants:
+	        addParticipants = set([item for item in participants if item.isdigit()])
+	    # Remove participants
+	    objetoHorario.removeParticipant(self.initHour,delParticipants)
+	    # Add participants
+            objetoHorario.addParticipant(self.initHour,addParticipants)
+        # Now that everything was done this auxiliary Horario object, dump it to DDDBB:
+        # Write to database
+        self.writeDatabase(objetoHorario)
+        # Update this object with database values
+        self.__init__(self.database,self.activity,self.initHour)
+
+    def remove(self,
+	       participants
+	       ):
+	'''
+	Method to remove participants
+	'''
+        objetoHorario = Horario(self.name, self.initHour,self.endHour,self.quota,self.participants)
+	if participants is not None:
+            objetoHorario.removeParticipant(self.initHour,participants)
+	    # Write to database
+	    self.writeDatabase(objetoHorario)
+	    # Update object with database values
+	    self.__init__(self.database,self.activity,self.initHour)
+
+    def writeDatabase(self,
+	              objetoHorario,
+		      description=None,
+		      vCalendar=None):
+	'''
+	Useful method that only writes to DDBB
+	'''
+	horariosJSON  = json.dumps(objetoHorario, default=jdefault)
+        try:	
+    	    db = sqlite3.connect(self.database)
+            cursor = db.cursor()
+	    # Aca va un update only horario column.
+            cursor.execute(
+            '''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''', (horariosJSON, self.activity))
+            message = "Message: {}, ".format(horariosJSON)
+            if description is not None:
+	        cursor.execute(
+	        '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, self.activity))
+                message += "{}, ".format(description) 
+		self.description = description
+	    if vCalendar is not None:
+	        cursor.execute(
+	        '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, self.activity))
+	        message += "{}, ".format(vCalendar) 
+		self.vCalendar = vCalendar
+	    message += "added to {}".format(self.activity) 
+	    db.commit()
+        except sqlite3.IntegrityError as e:
+	    db.rollback()
+	    raise e
+        except sqlite3.OperationalError as e:
+            db.rollback()
+	    raise e
+        finally:
+    	    cursor.close()
+
+
+
+#END of def update 
+
+
 	    
 def createActivityRegister(
 		database, 
@@ -133,42 +265,7 @@ def addActivityParticipant(
 		activity,
 		initHour,
 		telephone):
-    # First get the data from DB and load it in the Horario object
-    message = ''
-    activityRegister = getActivityRegister(database, activity)
-    # Luego transformalo en un objeto clase Horario
-    if activityRegister[0] == activity:
-	   horarios = json.loads(activityRegister[1]) 
-	   h = horarios['horarios']
-	   for key in h.viewkeys():
-	       print(key)
-	       objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
-
-               print(objetoHorario.__dict__)
-           # Ya tengo el objeto, ahora puedo actualizarlo:
-    message += objetoHorario.addParticipant(initHour, telephone)
-    horariosJSON  = json.dumps(objetoHorario, default=jdefault)
-#    print(horariosJSON)
-#    else: 
-	  # return "Message: Not such activity defined"
-    try:	
-	db = sqlite3.connect(database)
-        cursor = db.cursor()
-	# Aca va un update.
-	cursor.execute('''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''',
-    (horariosJSON, activity))
-	message = "Message: {} added to {}".format(horarios, activity ) 
-	db.commit()
-    except sqlite3.IntegrityError as e:
-	db.rollback()
-	raise e
-    except sqlite3.OperationalError as e:
-	db.rollback()
-	raise e
-    finally:
-	cursor.close()
-    return message
-
+    return modifyActivityParticipant(database,activity,initHour,telephone)
 
 
 
