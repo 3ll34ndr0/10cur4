@@ -5,7 +5,12 @@ class Horario(object):
 	{'horarios': {{'initHour':'10'}: [{'endHour':'11'}, {'quota':'3'}, {'participants':set(['351519348', '35151938', '3515204597'])]}}, 'name': 'Bldy'}
 	Quota is 1 as default
 	'''
-	def __init__(self,activity,initHour,endHour,quota='1', participant=None):
+	def __init__(self,
+		     activity,
+		     initHour,
+		     endHour,
+		     quota='1',
+		     participant=None):
 		appointment 	= {}
 		turnos	 	= {}
 		if participant is not None:
@@ -28,27 +33,29 @@ class Horario(object):
 		participant: It is the participant's telephone number 
 		'''
 		try:
+			message  = 'Message: adding {} ...'.format(participant)
 			totalP = str(len(self.horarios[initHour][2]))
 			qota   = self.horarios[initHour][1]
 			if type(participant) is str:
 				participant = [participant]
 			newP   = len(participant)
 			if totalP == qota:
-			   message  = 'Message: Turno completo, no se puede inscribir'
+			   message += '\nFailed: Turno completo, no se puede inscribir'
 			elif (newP + int(totalP)) > int(qota):
-		           message  = "Message: No puede reservar {} lugare/s".format(str(newP))
+		           message += "\nFailed: No puede reservar {} lugare/s".format(str(newP))
 			   message += ", la disponibilidad es de {}".format((str(int(qota)-int(totalP))))
 			else:
 			   self.horarios[initHour][2].update(participant)
-			   message  = "Message: {0} has been added to"
-			   message += " {1} at {2}\n"
+			   message += "Success:{0} has been added to".format(participant)
+			   message += " {1} at {2}\n".format(self.name,initHour)
 			   message += "AdminMessage: {3} participants"
 			   message += "in {4} at {5}"
-			   message.format(participant,self.name,initHour,participant,self.name,initHour)
+			   message.format(participant,self.name,initHour)
 		except KeyError as e:
 			message = "Message: There is no appointment for {} at {}".format(self.name, initHour)
+			print message
 		finally:
-			message = ''
+			print message
 			return message 
 
 

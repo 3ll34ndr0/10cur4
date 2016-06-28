@@ -4,11 +4,6 @@ from horario import Horario
 #           hourList = []
 #	    daySchedule{}  = emptyDict[day.lower():hourList.append((initHour, endHour)]}
 
-class Algo(object):
-	def __init__(una):
-		self.veri = una
-
-
 class ActivityRegister(object):
     '''
     I will try to create an object to handle the activity register in database
@@ -16,11 +11,28 @@ class ActivityRegister(object):
     def __init__(self,
 		database,
 		activity,
-		initHour):
-        areg = getActivityRegister(database,activity) 
-	ar = json.loads(getActivityRegister(database,activity)[1])
+		initHour,
+		endHour=None,
+		quota='1'):
+	self.database     = database
         self.activity     = activity
 	self.initHour     = initHour
+        areg = getActivityRegister(database,activity) 
+	ar = json.loads(getActivityRegister(database,activity)[1])
+	# Try if the appointment exists:
+	try:
+	    ar['horarios'][initHour]
+	except KeyError as e:
+	    objetoHorario = self.loadReg()
+	    objetoHorario.addAppointment(initHour,endHour,quota=quota)
+	    print(objetoHorario.__dict__)
+	    try:
+	        self.writeDatabase(objetoHorario)
+	    except Exception as e:
+		#"Failed trying to write to database"
+		raise e
+            areg = getActivityRegister(database,activity) 
+            ar = json.loads(getActivityRegister(database,activity)[1])
 	self.endHour      = ar['horarios'][initHour][0]
 	self.quota        = ar['horarios'][initHour][1]
 	self.participants = ar['horarios'][initHour][2]
@@ -28,13 +40,22 @@ class ActivityRegister(object):
 	self.vCalendar    = areg[4]
 	self.name         = areg[0] 
 	self.defaultQuota = areg[2]
-	self.database     = database
     def update(self,
 		endHour=None,
 		quota='1',
 		participants=None,
 		description=None,
 		vCalendar=None):
+	'''
+	Method to update any value from activity.
+	Optional params:
+	endHour,
+	quota
+	participants: If phone numbers are given with the '-' sign, they will be
+	deleted.
+	description
+	vCalendar
+	'''
         # Update endHour and quota:
         if endHour == None:
 	    endHour = self.endHour
@@ -76,15 +97,16 @@ class ActivityRegister(object):
             objetoHorario.addParticipant(self.initHour,addParticipants)
         # Now that everything was done this auxiliary Horario object, dump it to DDDBB:
         # Write to database
-        self.writeDatabase(objetoHorario)
+        self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
         self.__init__(self.database,self.activity,self.initHour)
 
     def remove(self,
-	       participants
+	       participants=None,
+	       initHour=None
 	       ):
 	'''
-	Method to remove participants
+	Method to remove participants, or erase all information for a given initHour
 	'''
         objetoHorario = Horario(self.name, self.initHour,self.endHour,self.quota,self.participants)
 	if participants is not None:
@@ -93,7 +115,14 @@ class ActivityRegister(object):
 	    self.writeDatabase(objetoHorario)
 	    # Update object with database values
 	    self.__init__(self.database,self.activity,self.initHour)
-
+	if initHour == self.initHour: # 'Erase' all information from activity at initHour
+	     objetoHorario = Horario(self.name,self.initHour,'') 
+	     description=''
+	     vCalendar  =''
+ 	     # Write to database
+	     self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
+	     # Update object with database values
+             self.__init__(self.database,self.activity,self.initHour)
     def writeDatabase(self,
 	              objetoHorario,
 		      description=None,
@@ -128,8 +157,16 @@ class ActivityRegister(object):
             db.rollback()
 	    raise e
         finally:
+	    locals()
     	    cursor.close()
 
+    def loadReg(self):
+        areg= getActivityRegister(self.database,self.activity) 
+        horarios = json.loads(areg[1]) 
+        h = horarios['horarios']
+        for key in h.viewkeys():
+           objetoHorario = Horario(self.activity, key, h[key][0], h[key][1], h[key][2])
+           return objetoHorario
 
 
 #END of def update 
@@ -161,7 +198,8 @@ def createActivityRegister(
     try:	
         db = sqlite3.connect(database)
 	cursor = db.cursor()
-	cursor.execute('''INSERT INTO activityCalendar(act, horarios, quota, description, vCalendar)
+	cursor.execute(
+	'''INSERT INTO activityCalendar(act, horarios, quota, description, vCalendar)
 	VALUES(?,?,?,?,?)''', (activity, horarios, quota, description, vCalendar))
 	print("DEBUG: Register %s, %s, %s, %s , %s added"% (activity, horarios, quota, description, vCalendar))
 	db.commit()
@@ -436,6 +474,3 @@ def jdefault(o):
 	return o.__dict__
 
    
-#json.dumps(horarioObject,default=jdefault)
-#json.loads(json.dumps())
-
