@@ -17,16 +17,17 @@ class ActivityRegister(object):
 	self.database     = database
         self.activity     = activity
 	self.initHour     = initHour
-        areg = getActivityRegister(database,activity) 
-	ar = json.loads(getActivityRegister(database,activity)[1])
-	# Try if the appointment exists:
+        # Try if the appointment exists:
 	try:
+            areg = getActivityRegister(database,activity) 
+	    ar = json.loads(getActivityRegister(database,activity)[1])
 	    ar['horarios'][initHour]
 	except KeyError as e:
 	    objetoHorario = self.loadReg()
+	    print("Un horario a las {} no existe, sera creado...".format(initHour))
 	    objetoHorario.addAppointment(initHour,endHour,quota=quota)
-	    print(objetoHorario.__dict__)
 	    try:
+		# Because we added one new initHour, need to write it to database
 	        self.writeDatabase(objetoHorario)
 	    except Exception as e:
 		#"Failed trying to write to database"
@@ -66,8 +67,11 @@ class ActivityRegister(object):
 	else :
 	    self.quota = quota
         #
-	# Create temporary Horario object with updated values, except for participants
-        objetoHorario = Horario(self.name, self.initHour,endHour,quota,self.participants)
+	objetoHorario = self.loadReg()
+	# Modify temporarly Horario object with updated values, except for participants
+	objetoHorario.addAppointment(self.initHour,endHour,quota,self.participants)
+#    # Create temporary Horario object with updated values, except for participants
+        #objetoHorario = Horario(self.name, self.initHour,endHour,quota,self.participants)
 	# 
 	# Update participants: We'll add or remove any number of participants given as 
 	#                      string, set or list. If number starts with '-', it'll
@@ -161,12 +165,20 @@ class ActivityRegister(object):
     	    cursor.close()
 
     def loadReg(self):
-        areg= getActivityRegister(self.database,self.activity) 
-        horarios = json.loads(areg[1]) 
+        areg = getActivityRegister(self.database,self.activity) 
+	horarios = json.loads(getActivityRegister(self.database,self.activity)[1])
         h = horarios['horarios']
-        for key in h.viewkeys():
-           objetoHorario = Horario(self.activity, key, h[key][0], h[key][1], h[key][2])
-           return objetoHorario
+	# Get all keys from 'horarios'
+	keys = list(h.viewkeys())
+	# Get the first key and create the object
+	key = keys.pop()
+	objetoHorario = Horario(self.activity, key, h[key][0], h[key][1], h[key][2])
+        # Next, get all other keys and populate the object with data from ddbb
+	while len(keys)>0:
+		key = keys.pop()
+                objetoHorario.addAppointment(key,h[key][0], h[key][1], h[key][2])
+		
+        return objetoHorario
 
 
 #END of def update 
@@ -205,7 +217,8 @@ def createActivityRegister(
 	db.commit()
     except sqlite3.IntegrityError as e:
 	db.rollback()
-	raise e  # Son necesarios los raise?
+	print("Existing record...")
+	print(e) # Son necesarios los raise?, por las dudas lo saque para que no falle.
     except sqlite3.OperationalError as e:
 	db.rollback()
 	print("DEBUG: Diferenciar el tipo de error")
