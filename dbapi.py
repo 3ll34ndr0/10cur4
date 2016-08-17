@@ -1,13 +1,11 @@
 import sqlite3
 import json
 from horario import Horario
-#           hourList = []
-#	    daySchedule{}  = emptyDict[day.lower():hourList.append((initHour, endHour)]}
 
 class ActivityRegister(object):
-    '''
-    I will try to create an object to handle the activity register in database
-    '''
+    """
+    This class is intended to create an object to handle the activity register in database.
+    """
     def __init__(self,
 		database,
 		activity,
@@ -47,16 +45,15 @@ class ActivityRegister(object):
 		participants=None,
 		description=None,
 		vCalendar=None):
-	'''
-	Method to update any value from activity.
+	"""Method to update any value from activity.
 	Optional params:
 	endHour,
 	quota
 	participants: If phone numbers are given with the '-' sign, they will be
 	deleted.
 	description
-	vCalendar
-	'''
+	vCalendar.
+	"""
         # Update endHour and quota:
         if endHour == None:
 	    endHour = self.endHour
@@ -109,9 +106,9 @@ class ActivityRegister(object):
 	       participants=None,
 	       initHour=None
 	       ):
-	'''
+	"""
 	Method to remove participants, or erase all information for a given initHour
-	'''
+	"""
         objetoHorario = Horario(self.name, self.initHour,self.endHour,self.quota,self.participants)
 	if participants is not None:
             objetoHorario.removeParticipant(self.initHour,participants)
@@ -131,9 +128,9 @@ class ActivityRegister(object):
 	              objetoHorario,
 		      description=None,
 		      vCalendar=None):
-	'''
+	"""
 	Useful method that only writes to DDBB
-	'''
+	"""
 	horariosJSON  = json.dumps(objetoHorario, default=jdefault)
         try:	
     	    db = sqlite3.connect(self.database)
@@ -193,16 +190,16 @@ def createActivityRegister(
 		quota='1', 
 		description=None, 
 		vCalendar=None):
-    '''
-	Creo una entrada en la tabla con 'activity' y un horario.
-	En cada tabla de actividad puedo agregar mas de un horario, por ejemplo: 
-	lunes 18:30, lunes 20:30, martes 9:00, miercoles 13:00
-	quota: Cantidad maxima de participantes permitida por horario (a las 13hs pueden
-	       8 pero a las 16hs pueden ser 20)
-	TODO: Pasar los dias de la semana a minusculas siempre. Asegurar
-	      formato am/pm y/o formato 24hs para pm. Probablemente
-	      eso es en una capa superior. 
-    '''
+    """
+    Creo una entrada en la tabla con 'activity' y un horario.
+    En cada tabla de actividad puedo agregar mas de un horario, por ejemplo: 
+    lunes 18:30, lunes 20:30, martes 9:00, miercoles 13:00
+    quota: Cantidad maxima de participantes permitida por horario (a las 13hs pueden
+    8 pero a las 16hs pueden ser 20)
+    TODO: Pasar los dias de la semana a minusculas siempre. Asegurar
+    formato am/pm y/o formato 24hs para pm. Probablemente
+    eso es en una capa superior. 
+    """
     # Construyo el objeto tipo Horario:
     objetoHorario = Horario(activity,initHour,endHour,quota) 
     print(objetoHorario.__dict__)
@@ -236,7 +233,7 @@ def modifyActivityRegister(
 		participants=None,
 		description=None,
 		vCalendar=None):
-    '''
+    """
 	Modifico algun valor de la tabla
 	Horarios, cantidad maxima de participantes (quota)
 	TODO: Chequear la integridad (formato) de los datos antes de guardar.
@@ -246,7 +243,7 @@ def modifyActivityRegister(
 	participants is a set, including telephoneNumber's participants
 	Dia: lunes|martes|... en minusculas.
 	Hora: HH:MM
-    '''
+    """
     # Primero tengo que obtener de la base de datos, lo que haya
     activityRegister = getActivityRegister(database, activity)
     if activityRegister[0] == activity:
@@ -334,11 +331,11 @@ def getActivityRegister(database, activity):
 
 
 def createAppointmentDB(database):
-    ''' 
+    """ 
         Database's name should be related to the client's market 
         Creates a database with: phone, name, activityCreditExpireDate, vCard 
 	Phone number should include international code
-    '''
+    """
     try:
 	db = sqlite3.connect(database)
 	# Get a cursor object
@@ -370,14 +367,14 @@ def createUserRegister(
 		credit=None, 
 		vCard=None, 
 		expDate=None):
-    '''
+    """
 	activity, credit and the expire date is stored
 	in a Dictionary using activity as string key.
 	Credit and ExpireDate will be stored as  should be as credit@expireDate.
 	expireDate will be calculated on fly when credits are added.	
 	Example: '{"act1" : "cred1@date1", "act2" : "cred2@date2", "act3" : ... }' 
 	expDate should be in a defined format (for example: DD-MM-YYYY)
-    '''
+    """
     db = sqlite3.connect(database)
 	# Get a cursor object
     cursor = db.cursor()
@@ -423,11 +420,11 @@ def getUserRegister(database,phoneNumber):
 
 
 def modifyRegisterCredit(database, phoneNumber, activity, newCredits, name=None, vCard=None):
-	'''
+	"""
 	This function can be used to add new fields or update existing ones.
 	When adding new credits, it updates for 1 month the expire date.
 	TODO: Take into account the type of each field (credits should be an int, ...)
-	'''
+	"""
 	# First I get the whole register using that phone number
         (phone, name, activityCreditsExpire,vCard) = getUserRegister(database,phoneNumber) 	
 	# Get activities' list
