@@ -1,6 +1,9 @@
+#!/usr/bin/python
+# coding: latin-1
 import sqlite3
 import json
 from horario import Horario
+import datetime
 
 class ActivityRegister(object):
     """
@@ -483,4 +486,18 @@ def jdefault(o):
 		return list(o)
 	return o.__dict__
 
-   
+# https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
+def formatDate(hour,minute,day=None,month=None,year=None):
+   """ Returns a tuple with the hour in HH:MM (AM|PM) format, 
+   Locale’s appropriate date and time representation (e.g. Mon Sep 30 07:06:05 2013)
+   and a datetime object if date is also given as parameter.
+   """
+   horaFecha     = None
+   horaFecha_str = None
+   if (day or month or year) is not None:
+      horaFecha     = datetime.datetime.combine(
+	                                   datetime.datetime(year,month,day),
+					   datetime.time(hour,minute))
+      horaFecha_str = horaFecha.strftime("%c") #Locale’s appropriate date and time representation.
+   hora_str = datetime.time(hour,minute).strftime("%H:%M %p")
+   return (hora_str,horaFecha_str,horaFecha) 

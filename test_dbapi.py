@@ -39,7 +39,7 @@ class ActivityRegisterTest(unittest.TestCase):
 	""" Just create the activity with all data
 	Creo que esto no es necesario ya que 
 	si no existe la actividad, se crea
-	capturando la excepción en testParticipants
+	capturando la excepcion en testParticipants
         createActivityRegister(database,
 	self.activity,
 	initHour=self.initHour,
