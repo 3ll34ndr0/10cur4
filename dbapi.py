@@ -3,13 +3,16 @@
 import sqlite3
 import json
 from horario import Horario
-import datetime
+# Handle hours and date 
+from datetime import datetime, timedelta
+from pytz import timezone
+import pytz
 
 class ActivityRegister(object):
-    """
-    This class is intended to create an object to handle the activity register in database.
-    """
-    def __init__(self,
+   """
+   This class is intended to create an object to handle the activity register in database.
+   """
+   def __init__(self,
 		database,
 		activity,
 		initHour,
@@ -18,11 +21,13 @@ class ActivityRegister(object):
 	self.database     = database
         self.activity     = activity
 	self.initHour     = initHour
+	self.endHour      = endHour
+	self.quota        = quota
         # Try if the appointment exists:
 	try:
             areg = getActivityRegister(database,activity) 
 	    ar = json.loads(getActivityRegister(database,activity)[1])
-	    ar['horarios'][initHour]
+	    ar['horarios'][initHour] # Esto es muy importante, se explica por la linea de arriba.
 	except KeyError as e:
 	    objetoHorario = self.loadReg()
 	    print("Un horario a las {} no existe, sera creado...".format(initHour))
@@ -30,11 +35,21 @@ class ActivityRegister(object):
 	    try:
 		# Because we added one new initHour, need to write it to database
 	        self.writeDatabase(objetoHorario)
+                # Update this object with database values
+                self.__init__(self.database,self.activity,self.initHour)
+                areg = getActivityRegister(database,activity) 
+	        ar = json.loads(getActivityRegister(database,activity)[1])
 	    except Exception as e:
 		#"Failed trying to write to database"
 		raise e
             areg = getActivityRegister(database,activity) 
             ar = json.loads(getActivityRegister(database,activity)[1])
+	except TypeError as e:
+	    print("La actividad {} no existe, sera creada...".format(activity))
+	    createActivityRegister(database,activity,initHour,endHour,quota=quota)
+            areg = getActivityRegister(database,activity) 
+	    ar = json.loads(getActivityRegister(database,activity)[1])
+
 	self.endHour      = ar['horarios'][initHour][0]
 	self.quota        = ar['horarios'][initHour][1]
 	self.participants = ar['horarios'][initHour][2]
@@ -42,7 +57,14 @@ class ActivityRegister(object):
 	self.vCalendar    = areg[4]
 	self.name         = areg[0] 
 	self.defaultQuota = areg[2]
-    def update(self,
+   def rawReport(self):
+       """Outputs all users and its data 
+       in a given activity at an initHour
+       """
+       rawData = '{},{}'.format(self.activity,self.initHour),self.participants
+       return rawData
+
+   def update(self,
 		endHour=None,
 		quota='1',
 		participants=None,
@@ -51,10 +73,10 @@ class ActivityRegister(object):
 	"""Method to update any value from activity.
 	Optional params:
 	endHour,
-	quota
-	participants: If phone numbers are given with the '-' sign, they will be
-	deleted.
-	description
+	quota,
+	participants (If phone numbers are given with the '-' sign, they will be
+	deleted),
+	description,
 	vCalendar.
 	"""
         # Update endHour and quota:
@@ -105,21 +127,39 @@ class ActivityRegister(object):
         # Update this object with database values
         self.__init__(self.database,self.activity,self.initHour)
 
-    def remove(self,
+   def cancelAppointment(self, participants):
+	"""Method to cancel the appointment of 'participants' from the current initHour"""
+	# ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
+	# sin perder información para poder borrar sòlo los participantes.
+        objetoHorario = self.loadReg()
+	# Remove participants
+	objetoHorario.removeParticipant(self.initHour,participants)
+	# Write to database
+	self.writeDatabase(objetoHorario)
+	# Update object with database values
+	self.__init__(self.database,self.activity,self.initHour)
+
+   def remove(self,
 	       participants=None,
 	       initHour=None
 	       ):
 	"""
-	Method to remove participants, or erase all information for a given initHour
+	Method to remove participants, OR erase all information for a given initHour
 	"""
+	#Me parece un bug que initHour no checkee por None
+	if (participants or initHour) is None:
+	    return
         objetoHorario = Horario(self.name, self.initHour,self.endHour,self.quota,self.participants)
+	if (participants is not None and initHour is not None):
+	    return
+            print("You can not use this method this way. You can delete either participants of the current initHour OR all information of a given initHour, not both.") 
 	if participants is not None:
             objetoHorario.removeParticipant(self.initHour,participants)
 	    # Write to database
 	    self.writeDatabase(objetoHorario)
 	    # Update object with database values
 	    self.__init__(self.database,self.activity,self.initHour)
-	if initHour == self.initHour: # 'Erase' all information from activity at initHour
+	if initHour is not None: # 'Erase' all information from activity at initHour
 	     objetoHorario = Horario(self.name,self.initHour,'') 
 	     description=''
 	     vCalendar  =''
@@ -127,7 +167,8 @@ class ActivityRegister(object):
 	     self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
 	     # Update object with database values
              self.__init__(self.database,self.activity,self.initHour)
-    def writeDatabase(self,
+
+   def writeDatabase(self,
 	              objetoHorario,
 		      description=None,
 		      vCalendar=None):
@@ -164,21 +205,21 @@ class ActivityRegister(object):
 	    locals()
     	    cursor.close()
 
-    def loadReg(self):
-        areg = getActivityRegister(self.database,self.activity) 
-	horarios = json.loads(getActivityRegister(self.database,self.activity)[1])
-        h = horarios['horarios']
-	# Get all keys from 'horarios'
-	keys = list(h.viewkeys())
-	# Get the first key and create the object
-	key = keys.pop()
-	objetoHorario = Horario(self.activity, key, h[key][0], h[key][1], h[key][2])
-        # Next, get all other keys and populate the object with data from ddbb
-	while len(keys)>0:
-		key = keys.pop()
-                objetoHorario.addAppointment(key,h[key][0], h[key][1], h[key][2])
-		
-        return objetoHorario
+   def loadReg(self):
+      """Method that creates an Horario object from current activity and database data"""
+      areg = getActivityRegister(self.database,self.activity) 
+      horarios = json.loads(getActivityRegister(self.database,self.activity)[1])
+      h = horarios['horarios']
+      # Get all keys from 'horarios'
+      keys = list(h.viewkeys())
+      # Get the first key and create the object
+      key = keys.pop()
+      objetoHorario = Horario(self.activity, key, h[key][0], h[key][1], h[key][2])
+      # Next, get all other keys and populate the object with data from ddbb
+      while len(keys)>0:
+         key = keys.pop()
+         objetoHorario.addAppointment(key,h[key][0], h[key][1], h[key][2])
+      return objetoHorario
 
 
 #END of def update 
@@ -205,7 +246,7 @@ def createActivityRegister(
     """
     # Construyo el objeto tipo Horario:
     objetoHorario = Horario(activity,initHour,endHour,quota) 
-    print(objetoHorario.__dict__)
+    #print(objetoHorario.__dict__)
     horarios	  = json.dumps(objetoHorario, default=jdefault)
     try:	
         db = sqlite3.connect(database)
@@ -252,23 +293,21 @@ def modifyActivityRegister(
     if activityRegister[0] == activity:
            # Luego transformalo en un objeto clase Horario
 	   horarios = json.loads(activityRegister[1]) 
-	   print(horarios)
 	   h = horarios['horarios']
-	   print(h[initHour][2])
 	   for key in h.viewkeys():
 	       objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
-	       print("dentro el for")
-	       print(h[key][2])
-	       print(objetoHorario.horarios[key][2])
+	       #print("dentro el for")
+	       #print(h[key][2])
+	       #print(objetoHorario.horarios[key][2])
 	       # Recupero los valores para no pisarlos despues (solo el que modifica)
                if initHour == key:
 	             participantsReg = objetoHorario.horarios[key][2]
-		     print("aca")
-		     print objetoHorario.horarios
-		     print(participantsReg)
+		     #print("aca")
+		     #print objetoHorario.horarios
+		     #print(participantsReg)
 		     if participants is not None:
-			print("New participants, but recovering old ones: {}".format(participantsReg))
-#			print(participantsReg)
+			#print("New participants, but recovering old ones: {}".format(participantsReg))
+#			#print(participantsReg)
 		        participantsReg.update(participants)
 		     if endHour     == None:
 		        endHour = objetoHorario.horarios[key][0]
@@ -276,12 +315,12 @@ def modifyActivityRegister(
 		        quota = objetoHorario.horarios[key][1]
                else:
 		     print("Appointment {key} is not going to be modified".format(key))
-	       print("{}, {}, {}, {}".format(key, h[key][0],h[key][1],participantsReg))
+	       #print("{}, {}, {}, {}".format(key, h[key][0],h[key][1],participantsReg))
 	   
            # Ya tengo el objeto, ahora puedo actualizarlo:
 	   objetoHorario.addAppointment(initHour,endHour,quota, participantsReg)
            horariosJSON  = json.dumps(objetoHorario, default=jdefault)
-	   print(horariosJSON)
+	   #print(horariosJSON)
     else: 
 	   return "Message: Not such activity defined"
     try:	
@@ -406,7 +445,7 @@ def createUserRegister(
 	raise e
     except sqlite3.OperationalError as e:
 	db.rollback()
-	print("la garlopa")
+	#print("la garlopa")
 	raise e
     finally:
 	cursor.close()
