@@ -2,8 +2,12 @@
 # coding: latin-1
 import unittest
 import random
-from dbapi import ActivityRegister, createActivityRegister
+import json
+from time import time
+from dbapi import ActivityRegister, createActivityRegister,createUserRegisterDB,getUserRegister
+
 database = 'test.db'
+activity = 'Juanchos Gym'
 #createAppointmentDB(database)
 class ActivityRegisterTest(unittest.TestCase):
     def setUp(self):
@@ -32,23 +36,39 @@ class ActivityRegisterTest(unittest.TestCase):
 	print("Y ahora ...")
 	print("agrego a la nueva gilada ...")
         ar.update(participants=self.participants)
+	# First EQUIVALENCE TEST
+	self.assertEqual(set(self.participants),set(ar.participants))
+	#Create new object with data recently given
+	br = ActivityRegister(self.database, self.activity, self.initHour)
+	# New EQUIVALENCE TEST
+	self.assertEqual(set(ar.participants),set(br.participants))
+#    def testReport(self):
+#       print("\n El horarido de initHour es: {} ".format(self.initHour))
+#       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+#       print(ar.rawReport())
 
-	   # Create new object with data recently given
-#	   br = ActivityRegister(self.database, self.activity, self.initHour)
-#	   self.assertEqual(set(self.participants),set(br.participants))
-#	except TypeError as e:
-#	   print("Opaaa! Activity {} has no record on database, creating it...".format(self.activity))
-#           createActivityRegister(database,
-#                                 self.activity,
-#	                         initHour=self.initHour,
-#	                         endHour=self.initHour,
-#	                         quota=self.quota,
-#	                         description=self.description,
-#	                         vCalendar=self.vCalendar)
-    def testReport(self):
-       print("\n El horarido de initHour es: {} ".format(self.initHour))
-       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
-       print(ar.rawReport())
+class UserRegisterDBTest(unittest.TestCase):
+   def setUp(self):
+      self.database = database
+      [self.phone]  = map(unicode, random.sample(
+		          range(4593515000000,4593515999999),1))
+      self.name     = unicode('cualquier nombre')
+      self.activity = activity 
+      self.credit = unicode(random.sample(range(8,32),1).pop()) 
+      self.vCard    = unicode('False vCard')
+      self.expDate  = str(time() + 2628000) # SEE: "def createUserRegisterDB" 
+   def testCreateUserReg(self):
+      createUserRegisterDB(self.database,
+		           self.phone,
+			   self.name,
+			   self.activity,
+			   self.credit,
+			   self.vCard)
+      userData  = getUserRegister(self.database,self.phone)
+      dictioAct = {self.activity:'@'.join((self.credit,self.expDate))}
+      credAtExp = json.dumps(dictioAct)
+      expected  = (self.phone, self.name,credAtExp,self.vCard)
+      self.assertEqual(userData,expected)
 
 if __name__ == '__main__':
 	    unittest.main()

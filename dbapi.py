@@ -62,7 +62,7 @@ class ActivityRegister(object):
        """Outputs all users and its data 
        in a given activity at an initHour
        """
-       #people  = getParticipantsName(self.participants)
+       people  = getParticipantsName(self.participants)
        #rawData = '{},{}'.format(self.activity,self.initHour),people
        rawData = '{},{}'.format(self.activity,self.initHour,self.participants)
        return rawData
@@ -222,6 +222,7 @@ class ActivityRegister(object):
       for phone in participants:
          phone,name,expireDate,vCard = getUserRegister(self.database,phone) 	
 	 namesAndExpire.append(name+','+expireDate.split('@'))
+      
       return namesAndExpire
 
 
@@ -400,7 +401,7 @@ def createAppointmentDB(database):
 	cursor.close()
 
 
-def createUserRegister(
+def createUserRegisterDB(
 		database=None,
 		phone=None,
 		name=None, 
