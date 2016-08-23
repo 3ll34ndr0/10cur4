@@ -1,3 +1,3 @@
 # 10cur4
 #### Requirements
-[https://pypi.python.org/pypi/pytz#downloads](pytz)
+[pytz](https://pypi.python.org/pypi/pytz#downloads)
