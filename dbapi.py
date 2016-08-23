@@ -7,6 +7,7 @@ from horario import Horario
 from datetime import datetime, timedelta
 from pytz import timezone
 import pytz
+from time import time,localtime
 
 class ActivityRegister(object):
    """
@@ -61,7 +62,9 @@ class ActivityRegister(object):
        """Outputs all users and its data 
        in a given activity at an initHour
        """
-       rawData = '{},{}'.format(self.activity,self.initHour),self.participants
+       #people  = getParticipantsName(self.participants)
+       #rawData = '{},{}'.format(self.activity,self.initHour),people
+       rawData = '{},{}'.format(self.activity,self.initHour,self.participants)
        return rawData
 
    def update(self,
@@ -92,14 +95,6 @@ class ActivityRegister(object):
 	objetoHorario = self.loadReg()
 	# Modify temporarly Horario object with updated values, except for participants
 	objetoHorario.addAppointment(self.initHour,endHour,quota,self.participants)
-#    # Create temporary Horario object with updated values, except for participants
-        #objetoHorario = Horario(self.name, self.initHour,endHour,quota,self.participants)
-	# 
-	# Update participants: We'll add or remove any number of participants given as 
-	#                      string, set or list. If number starts with '-', it'll
-	#                      be removed from participants' set, otherwise it'll be
-	#                      added to it.
-	#
         if participants is not None:
 	    delParticipants = []
 	    addParticipants = []
@@ -126,7 +121,7 @@ class ActivityRegister(object):
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
         self.__init__(self.database,self.activity,self.initHour)
-
+#END of def update 
    def cancelAppointment(self, participants):
 	"""Method to cancel the appointment of 'participants' from the current initHour"""
 	# ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
@@ -221,11 +216,15 @@ class ActivityRegister(object):
          objetoHorario.addAppointment(key,h[key][0], h[key][1], h[key][2])
       return objetoHorario
 
+   def getParticipantsName(self, participants):
+      """Get all names and expire date from a given list of participants, from current database"""
+      namesAndExpire = []
+      for phone in participants:
+         phone,name,expireDate,vCard = getUserRegister(self.database,phone) 	
+	 namesAndExpire.append(name+','+expireDate.split('@'))
+      return namesAndExpire
 
-#END of def update 
 
-
-	    
 def createActivityRegister(
 		database, 
 		activity,
@@ -423,7 +422,7 @@ def createUserRegister(
     if not activity == None: 
 	    # Expire date
 	    if expDate == None:
-		    expireDate = time() + 2628000  #2628000 secs in a month 365.0/12
+		    expDate = str(time() + 2628000)  #2628000 secs in a month 365.0/12
 	    else:
 		    print("TODO: Check if date is in the defined format DD-MM-YYYY, and convert it to epoch time")
 
@@ -452,13 +451,14 @@ def createUserRegister(
 
 
 def getUserRegister(database,phoneNumber):
-	db = sqlite3.connect(database)
-	telefono = (phoneNumber,)
-	cursor = db.cursor()
-	lista = cursor.execute('SELECT * FROM cuentaUsuarios WHERE phone=?', telefono)
-	otraLista = lista.fetchone()
-	cursor.close()
-	return otraLista # I could return data as: Name, activity (n credits expire on 'expireDate') 
+   """Returns (phone, name, activityCreditsExpire,vCard) from database"""
+   db = sqlite3.connect(database) #I should use try here
+   telefono = (phoneNumber,)
+   cursor = db.cursor()
+   lista = cursor.execute('SELECT * FROM cuentaUsuarios WHERE phone=?', telefono)
+   otraLista = lista.fetchone()
+   cursor.close()
+   return otraLista # Should I return data as: Name, activity (n credits expire on 'expireDate')? 
 
 
 def modifyRegisterCredit(database, phoneNumber, activity, newCredits, name=None, vCard=None):
