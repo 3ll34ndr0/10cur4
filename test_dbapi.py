@@ -46,15 +46,20 @@ class ActivityRegisterTest(unittest.TestCase):
 #       print("\n El horarido de initHour es: {} ".format(self.initHour))
 #       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
 #       print(ar.rawReport())
+### 
+#Get a list with fake's names from a file. 
+nombres = list()
+with open("fake_names.txt","r") as file:
+   nombres = file.readlines()
+###
 
 class UserRegisterDBTest(unittest.TestCase):
    def setUp(self):
       self.database = database
-      [self.phone]  = map(unicode, random.sample(
-		          range(4593515000000,4593515999999),1))
-      self.name     = unicode('cualquier nombre')
+      [self.phone]  = map(unicode, random.sample(range(4593515000000,4593515999999),1))
+      self.name     = unicode(random.sample(nombres,1).pop().rstrip(' \n'))
       self.activity = activity 
-      self.credit = unicode(random.sample(range(8,32),1).pop()) 
+      self.credit   = unicode(random.sample(range(8,32),1).pop()) 
       self.vCard    = unicode('False vCard')
       self.expDate  = str(time() + 2628000) # SEE: "def createUserRegisterDB" 
    def testCreateUserReg(self):
