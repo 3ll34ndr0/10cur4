@@ -225,7 +225,23 @@ class ActivityRegister(object):
       
       return namesAndExpire
 
+def createUserRegisterFromVCard(database,vCard,activity=None,credit=None):
+   import vobject
+#   if (activity or credit) is not None: return "You must give both values: activity and credits. Or you can give nither of them"
+   vcObj = vobject.readOne(vCard)
+   name  = vcObj.contents['fn'][0].value
+   phonedata = vcObj.contents['tel'][0].value
+   phone = phonedata.lstrip('+').replace(' ','').replace('-','') #Not very elegant, but ...
+   createUserRegisterDB(database,
+		        phone,
+			name,
+			activity,
+			credit,
+			vCard)
 
+
+
+   
 def createActivityRegister(
 		database, 
 		activity,
@@ -442,7 +458,8 @@ def createUserRegisterDB(
 	db.commit()
     except sqlite3.IntegrityError as e:
 	db.rollback()
-	raise e
+	print("WARNING: Phone number {} already exists! Nothing done.".format(phone))
+	#raise e
     except sqlite3.OperationalError as e:
 	db.rollback()
 	#print("la garlopa")
