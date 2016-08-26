@@ -7,7 +7,10 @@ from horario import Horario
 from datetime import datetime, timedelta
 from pytz import timezone
 import pytz
-from time import time,localtime
+import locale
+from time import time,localtime,strftime
+# This should be tied to a configuration file:
+locale.setlocale(locale.LC_ALL,'es_AR.utf8')
 
 class ActivityRegister(object):
    """
@@ -62,9 +65,12 @@ class ActivityRegister(object):
        """Outputs all users and its data 
        in a given activity at an initHour
        """
-       people  = getParticipantsName(self.participants)
-       #rawData = '{},{}'.format(self.activity,self.initHour),people
-       rawData = '{},{}'.format(self.activity,self.initHour,self.participants)
+       sortedPeople = list()
+       people  = self.getParticipantsName()
+       people.sort(key=lambda vence: vence.name)   # sort by name 
+       for c in people:
+	       sortedPeople.append(c.name+", "+c.credits+" @ "+c.expDate.rstrip(' ')+" ("+c.phone+")") #ACA ver que hacer con repr(c.expDate)
+       rawData = ('{},{}'.format(self.activity,self.initHour),sortedPeople) # a tuple with string and other string
        return rawData
 
    def update(self,
@@ -216,14 +222,16 @@ class ActivityRegister(object):
          objetoHorario.addAppointment(key,h[key][0], h[key][1], h[key][2])
       return objetoHorario
 
-   def getParticipantsName(self, participants):
-      """Get all names and expire date from a given list of participants, from current database"""
-      namesAndExpire = []
-      for phone in participants:
-         phone,name,expireDate,vCard = getUserRegister(self.database,phone) 	
-	 namesAndExpire.append(name+','+expireDate.split('@'))
+   def getParticipantsName(self):
+      """Get all names and expire date from participants, from current database""" #and current initHour,activity
+      creditsObj = list()
+      for phone in self.participants:
+         phoneNumber, name, activityCreditsExpire, vCard = getUserRegister(self.database,phone) 	
+	 activityDict = json.loads(activityCreditsExpire)
+         credits,expDate = activityDict[self.activity].split('@')
+	 creditsObj.append(VencimientosCreditos(name,float(expDate),credits,phoneNumber))
+      return creditsObj
       
-      return namesAndExpire
 
 def createUserRegisterFromVCard(database,vCard,activity=None,credit=None):
    import vobject
@@ -558,3 +566,21 @@ def formatDate(hour,minute,day=None,month=None,year=None):
       horaFecha_str = horaFecha.strftime("%c") #Locale’s appropriate date and time representation.
    hora_str = datetime.time(hour,minute).strftime("%H:%M %p")
    return (hora_str,horaFecha_str,horaFecha) 
+
+
+
+class VencimientosCreditos:
+   def __init__(self,name,epochDate,credits,phone):
+      self.name      = name
+      self.credits   = credits
+      self.epochDate = float(epochDate)
+      self.phone     = phone
+      y,m,d,h,mi,s    = localtime(self.epochDate)[0:6]
+      #expireAndNames[epochDate] = name+','+'@'.join((credits,self.expDate.)
+      self.expDate   = datetime(y,m,d,h,mi,s).strftime("%c").decode('utf-8')
+   def __repr__(self):
+      return repr((self.name, self.credits, self.expDate,self.phone))
+
+
+
+# TODO: Crear un metodo para obtener todas las initHour a partir de un rango dado.

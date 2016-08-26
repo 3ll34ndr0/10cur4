@@ -8,16 +8,19 @@ from dbapi import ActivityRegister, createActivityRegister,createUserRegisterDB,
 
 database = 'test.db'
 activity = 'Juanchos Gym'
+initHour = str(random.randint(0,13))
+participantes = list(ActivityRegister(database, activity,initHour).participants)
+#print participantes
 #createAppointmentDB(database)
 class ActivityRegisterTest(unittest.TestCase):
     def setUp(self):
-#        self.activity     = "cosa loca"
-        self.activity     = "cosa e locos"
-	self.initHour     = str(random.randint(0,23)) 
-#	self.initHour     = '12'
+        self.activity     = "cosa loca"
+#        self.activity     = "cosa e locos"
+#	self.initHour     = str(random.randint(0,13)) 
+	self.initHour     = initHour
 	self.endHour      = str(int(self.initHour)+1)+"hs"
-	self.quota        = "270"
-	self.participants = map(unicode,random.sample(range(4593515000000,4593515999999), random.randint(1,27)))
+	self.quota        = "4"
+	self.participants = map(unicode,random.sample(range(4593515000000,4593515999999), random.randint(1,3)))
 	self.description  = "una cosa nomas te digo..."
 	self.vCalendar    = "algun dia sera usado"
 	self.database     = database
@@ -42,10 +45,10 @@ class ActivityRegisterTest(unittest.TestCase):
 	br = ActivityRegister(self.database, self.activity, self.initHour)
 	# New EQUIVALENCE TEST
 	self.assertEqual(set(ar.participants),set(br.participants))
-#    def testReport(self):
+    def testReport(self):
 #       print("\n El horarido de initHour es: {} ".format(self.initHour))
-#       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
-#       print(ar.rawReport())
+       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+       print(ar.rawReport())
 ### 
 #Get a list with fake's names from a file. 
 nombres = list()
@@ -56,11 +59,11 @@ with open("fake_names.txt","r") as file:
 class UserRegisterDBTest(unittest.TestCase):
    def setUp(self):
       self.database = database
-      [self.phone]  = map(unicode, random.sample(range(4593515000000,4593515999999),1))
       self.name     = unicode(random.sample(nombres,1).pop().rstrip(' \n'))
       self.activity = activity 
       self.credit   = unicode(random.sample(range(8,32),1).pop()) 
       self.vCard    = unicode('False vCard')
+      [self.phone]  = map(unicode, random.sample(participantes,1))
       self.expDate  = str(time() + 2628000) # SEE: "def createUserRegisterDB" 
    def testCreateUserReg(self):
       createUserRegisterDB(self.database,
