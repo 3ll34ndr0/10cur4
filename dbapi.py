@@ -73,6 +73,18 @@ class ActivityRegister(object):
        rawData = ('{},{}'.format(self.activity,self.initHour),sortedPeople) # a tuple with string and other string
        return rawData
 
+   def periodReport(self, period):
+      """Expects an iterable with valid initHours on it"""
+      # The next line is very criptic, but it really gets the job done:
+      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
+
+      reportList = ['Reporte:']
+      for initHour in period:
+         ar = ActivityRegister(self.database, self.activity, initHour)
+         reportList.append(ar.rawReport())
+      return reportList
+
+
    def update(self,
 		endHour=None,
 		quota='1',
@@ -232,8 +244,21 @@ class ActivityRegister(object):
 	 creditsObj.append(VencimientosCreditos(name,float(expDate),credits,phoneNumber))
       return creditsObj
       
+def createVcard(name,phone):
+   """Create vcard formated string with name (given and family) and phoneNumber given"""
+   import vobject
+   j = vobject.vCard()
+   j.add('n')
+   [nombrePila,apellido] = name.split(' ')
+   j.n.value = vobject.vcard.Name( family=apellido, given=nombrePila )
+   j.add('fn')
+   j.fn.value = name
+   j.add('tel')
+   j.tel.value = phone
+   return j.serialize()
 
-def createUserRegisterFromVCard(database,vCard,activity=None,credit=None):
+
+def createUserRegisterFromVCard(database,vCard,activity=None,credit=None,expDate=None):
    import vobject
 #   if (activity or credit) is not None: return "You must give both values: activity and credits. Or you can give nither of them"
    vcObj = vobject.readOne(vCard)
@@ -245,9 +270,25 @@ def createUserRegisterFromVCard(database,vCard,activity=None,credit=None):
 			name,
 			activity,
 			credit,
-			vCard)
+			vCard,
+			expDate)
 
+def createHumanDate(day,month,hour,mins):
+   """Create an epoch datetime from date and time given in a non standard way"""
+#	datetime.datetime(2016,8,02,18,18,18).strftime("%A %d %B %Y")
+#	'martes 02 agosto 2016
+# IMPORTANT: The locale should be already set by now. i.e. locale.setlocale(locale.LC_ALL,'es_AR.utf8')
+# ABANDONADA esta parte del código, para hacer algo mucho mas KISS
+   import locale
+   import datetime
+   import time
+   import calendar
+   daysOfTheWeek = map(lambda d: d.lower(), list(calendar.day_name))
+   if dayNumber is None:
+      dayNumber = None
+  
 
+  
 
    
 def createActivityRegister(
@@ -552,20 +593,23 @@ def jdefault(o):
 	return o.__dict__
 
 # https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
-def formatDate(hour,minute,day=None,month=None,year=None):
+def formatDate(timeTuple):
    """ Returns a tuple with the hour in HH:MM (AM|PM) format, 
    Locale’s appropriate date and time representation (e.g. Mon Sep 30 07:06:05 2013)
-   and a datetime object if date is also given as parameter.
+   and seconds since the epoch in localtime if date is also given as parameter.
    """
+   import datetime          #Read the docs: https://docs.python.org/2/library/datetime.html
+   from time import mktime  #Read the docs: https://docs.python.org/2/library/time.html#module-time
    horaFecha     = None
-   horaFecha_str = None
+   Fecha_str = None
+   year,month,day,hour,minute =timeTuple
    if (day or month or year) is not None:
-      horaFecha     = datetime.datetime.combine(
-	                                   datetime.datetime(year,month,day),
+      t        = datetime.datetime.combine(datetime.datetime(year,month,day),
 					   datetime.time(hour,minute))
-      horaFecha_str = horaFecha.strftime("%c") #Locale’s appropriate date and time representation.
-   hora_str = datetime.time(hour,minute).strftime("%H:%M %p")
-   return (hora_str,horaFecha_str,horaFecha) 
+      Fecha_str = t.strftime("%A %d %B %Y")
+      horaFecha = mktime(t.timetuple())
+   hora_str = datetime.time(hour,minute).strftime("%H:%M%p")
+   return (hora_str,Fecha_str,horaFecha) 
 
 
 
@@ -584,3 +628,6 @@ class VencimientosCreditos:
 
 
 # TODO: Crear un metodo para obtener todas las initHour a partir de un rango dado.
+# TODO: Crear un método que construya el initHour a partir de datos humanos (lunes 18:00hs, por ej.) DONE formatDate
+# TODO: Crear un método que cree nuevas actividades a partir de una lista con el siguiente formato:
+#       lunes 10:00 12:00 14:30 18:00 21:15 23:00
