@@ -4,7 +4,8 @@ import sqlite3
 import json
 from horario import Horario
 # Handle hours and date 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,date
+from datetime import time as tm
 from pytz import timezone
 import pytz
 import locale
@@ -70,16 +71,41 @@ class ActivityRegister(object):
        people.sort(key=lambda vence: vence.name)   # sort by name 
        for c in people:
 	       sortedPeople.append(c.name+", "+c.credits+" @ "+c.expDate.rstrip(' ')+" ("+c.phone+")") #ACA ver que hacer con repr(c.expDate)
-       rawData = ('{},{}'.format(self.activity,self.initHour),sortedPeople) # a tuple with string and other string
+       initHourEpoch = formatDate(localtime(float(self.initHour))[0:5])[0:2]
+       #datetime(y,m,d,h,mi,s).strftime("%c").decode('utf-8')
+       rawData = ('{},{}'.format(self.activity,initHourEpoch),sortedPeople) # a tuple with string and other string
        return rawData
 
    def periodReport(self, period):
-      """Expects an iterable with valid initHours on it"""
+      """Expects an iterable with valid initHours on it. timeRange is day,week,month"""
       # The next line is very criptic, but it really gets the job done:
-      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
+      today             = date.today()
+      todayEpoch        = formatDate(today.timetuple()[0:5])[2]
+      todayAtZeroAM     = datetime.combine(today,tm(0,0))
+      todayAtZeroAME    = formatDate(todayAtZeroAM.timetuple()[0:5])[2]
+      tomorrowAtZeroAM  = todayAtZeroAM + timedelta(days=1)
+      tomorrowAtZeroAME = formatDate(tomorrowAtZeroAM.timetuple()[0:5])[2]
+      lastWeek          = todayAtZeroAM - timedelta(days=7) 
+      lastWeekEpoch     = formatDate(lastWeek.timetuple()[0:5])[2]
+      lastMonth         = todayAtZeroAM - timedelta(days=30)
+      lastMonthEpoch    = formatDate(lastMonth.timetuple()[0:5])[2]
 
-      reportList = ['Reporte:']
-      for initHour in period:
+
+
+      
+      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
+      if period is "mensual":
+         timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastMonthEpoch and float(ihs) < todayEpoch]
+	 reportList = ['Reporte mensual:'] 
+      if period is "semanal":
+         timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastWeekEpoch and float(ihs) < todayAtZeroAME]
+	 reportList = ['Reporte semanal:'] 
+      if period is "diario":
+         timeRange = [ihs for ihs in appointmentsHours if float(ihs) > todayAtZeroAME and float(ihs) < tomorrowAtZeroAME]
+	 reportList = ['Reporte del día:']
+
+
+      for initHour in timeRange:
          ar = ActivityRegister(self.database, self.activity, initHour)
          reportList.append(ar.rawReport())
       return reportList

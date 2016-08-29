@@ -81,6 +81,16 @@ class ActivityRegisterTest(unittest.TestCase):
     def testReport(self):
        ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
        print(ar.rawReport())
+    def testPeriodmonth(self):
+       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+       print(ar.periodReport("mensual"))
+    def testPeriodWeek(self):
+       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+       print(ar.periodReport("semanal"))
+    def testPeriodDay(self):
+       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+       print(ar.periodReport("diario"))
+
 
 ### 
 #Get a list with fake's names from a file. 
