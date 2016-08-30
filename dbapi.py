@@ -63,13 +63,23 @@ class ActivityRegister(object):
 	self.name         = areg[0] 
 	self.defaultQuota = areg[2]
 
-   def reportAvailableAppointments(self):
-      today = date.today()
-      todayEpoch        = formatDate(today.timetuple()[0:5])[2]
+   def reportAvailableAppointments(self,onDay=None,untilDay=None):
+      """onDay is expected to be a datetime object """
+      if onDay is None: # For today
+         fromTimeEpoch = time() # From now on
+	 toTimeEpoch   = formatDate((date.today() + timedelta(1)).timetuple()[0:5])[2]
+      else:             # Or any other day
+	 fromTimeEpoch = formatDate(onDay.timetuple()[0:5])[2]
+	 if untilDay is not None:
+            toTimeEpoch = formatDate((untilDay + timedelta(1)).timetuple()[0:5])[2]
+	 else:
+            toTimeEpoch = fromTimeEpoch + 86400 # plus one day in seconds
+
 #      first get the initHours for the day
-#      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
-      appsForToday = [ap for ap in  appointmentsHours if float(ap) > todayEpoch and float(ap) < tomorrowAtZeroAME]
-	
+      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
+      appointmentsHours.sort()
+      appointmentsForToday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
+      return appointmentsForToday
 
 # TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro. availableAppointments
 
@@ -667,4 +677,4 @@ class VencimientosCreditos:
 # TODO: Crear un método que cree nuevas actividades a partir de una lista con el siguiente formato:
 #       lunes 10:00 12:00 14:30 18:00 21:15 23:00
 
-# TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro.
+# TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro. DONE reportAvailableAppointments
