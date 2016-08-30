@@ -62,6 +62,18 @@ class ActivityRegister(object):
 	self.vCalendar    = areg[4]
 	self.name         = areg[0] 
 	self.defaultQuota = areg[2]
+
+   def reportAvailableAppointments(self):
+      today = date.today()
+      todayEpoch        = formatDate(today.timetuple()[0:5])[2]
+#      first get the initHours for the day
+#      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
+      appsForToday = [ap for ap in  appointmentsHours if float(ap) > todayEpoch and float(ap) < tomorrowAtZeroAME]
+	
+
+# TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro. availableAppointments
+
+
    def rawReport(self):
        """Outputs all users and its data 
        in a given activity at an initHour
@@ -78,7 +90,6 @@ class ActivityRegister(object):
 
    def periodReport(self, period):
       """Expects an iterable with valid initHours on it. timeRange is day,week,month"""
-      # The next line is very criptic, but it really gets the job done:
       today             = date.today()
       todayEpoch        = formatDate(today.timetuple()[0:5])[2]
       todayAtZeroAM     = datetime.combine(today,tm(0,0))
@@ -90,9 +101,7 @@ class ActivityRegister(object):
       lastMonth         = todayAtZeroAM - timedelta(days=30)
       lastMonthEpoch    = formatDate(lastMonth.timetuple()[0:5])[2]
 
-
-
-      
+      # The next line is very criptic, but it really gets the job done:
       appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
       if period is "mensual":
          timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastMonthEpoch and float(ihs) < todayEpoch]
@@ -168,7 +177,7 @@ class ActivityRegister(object):
 #END of def update 
    def cancelAppointment(self, participants):
 	"""Method to cancel the appointment of 'participants' from the current initHour"""
-	# ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
+	# TODO: ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
 	# sin perder información para poder borrar sòlo los participantes.
         objetoHorario = self.loadReg()
 	# Remove participants
@@ -653,7 +662,9 @@ class VencimientosCreditos:
 
 
 
-# TODO: Crear un metodo para obtener todas las initHour a partir de un rango dado.
+# TODO: Crear un metodo para obtener todas las initHour a partir de un rango dado. DONE periodReport 
 # TODO: Crear un método que construya el initHour a partir de datos humanos (lunes 18:00hs, por ej.) DONE formatDate
 # TODO: Crear un método que cree nuevas actividades a partir de una lista con el siguiente formato:
 #       lunes 10:00 12:00 14:30 18:00 21:15 23:00
+
+# TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro.
