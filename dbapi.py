@@ -674,7 +674,6 @@ class VencimientosCreditos:
 
 # TODO: Crear un metodo para obtener todas las initHour a partir de un rango dado. DONE periodReport 
 # TODO: Crear un método que construya el initHour a partir de datos humanos (lunes 18:00hs, por ej.) DONE formatDate
-# TODO: Crear un método que cree nuevas actividades a partir de una lista con el siguiente formato:
 #       lunes 10:00 12:00 14:30 18:00 21:15 23:00
 
 # TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro. DONE reportAvailableAppointments
