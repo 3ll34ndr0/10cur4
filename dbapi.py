@@ -3,7 +3,7 @@
 import sqlite3
 import json
 from horario import Horario
-# Handle hours and date 
+# Handle hours and date
 from datetime import datetime, timedelta,date
 from datetime import time as tm
 from pytz import timezone
@@ -23,57 +23,57 @@ class ActivityRegister(object):
 		initHour,
 		endHour=None,
 		quota='1'):
-	self.database     = database
-        self.activity     = activity
-	self.initHour     = initHour
-	self.endHour      = endHour
-	self.quota        = quota
+        self.database = database
+        self.activity = activity
+        self.initHour = initHour
+        self.endHour  = endHour
+        self.quota    = quota
         # Try if the appointment exists:
-	try:
-            areg = getActivityRegister(database,activity) 
-	    ar = json.loads(getActivityRegister(database,activity)[1])
-	    ar['horarios'][initHour] # Esto es muy importante, se explica por la linea de arriba.
-	except KeyError as e:
-	    objetoHorario = self.loadReg()
-	    print("Un horario a las {} no existe, sera creado...".format(initHour))
-	    objetoHorario.addAppointment(initHour,endHour,quota=quota)
-	    try:
-		# Because we added one new initHour, need to write it to database
-	        self.writeDatabase(objetoHorario)
+        try:
+            areg = getActivityRegister(database,activity)
+            ar = json.loads(getActivityRegister(database,activity)[1])
+            ar['horarios'][initHour] # Esto es muy importante, se explica por la linea de arriba.
+        except KeyError as e:
+            objetoHorario = self.loadReg()
+            print("Un horario a las {} no existe, sera creado..".format(initHour))
+            objetoHorario.addAppointment(initHour,endHour,quota=quota)
+            try:
+                # Because we added one new initHour, need to write it to database
+                self.writeDatabase(objetoHorario)
                 # Update this object with database values
                 self.__init__(self.database,self.activity,self.initHour)
-                areg = getActivityRegister(database,activity) 
-	        ar = json.loads(getActivityRegister(database,activity)[1])
-	    except Exception as e:
-		#"Failed trying to write to database"
-		raise e
-            areg = getActivityRegister(database,activity) 
+                areg = getActivityRegister(database,activity)
+                ar = json.loads(getActivityRegister(database,activity)[1])
+            except Exception as e:
+                #"Failed trying to write to database"
+                raise e
+            areg = getActivityRegister(database,activity)
             ar = json.loads(getActivityRegister(database,activity)[1])
-	except TypeError as e:
-	    print("La actividad {} no existe, sera creada...".format(activity))
-	    createActivityRegister(database,activity,initHour,endHour,quota=quota)
-            areg = getActivityRegister(database,activity) 
-	    ar = json.loads(getActivityRegister(database,activity)[1])
+        except TypeError as e:
+            print("La actividad {} no existe, sera creada...".format(activity))
+            createActivityRegister(database,activity,initHour,endHour,quota=quota)
+            areg = getActivityRegister(database,activity)
+            ar = json.loads(getActivityRegister(database,activity)[1])
 
-	self.endHour      = ar['horarios'][initHour][0]
-	self.quota        = ar['horarios'][initHour][1]
-	self.participants = ar['horarios'][initHour][2]
-	self.description  = areg[3]
-	self.vCalendar    = areg[4]
-	self.name         = areg[0] 
-	self.defaultQuota = areg[2]
+        self.endHour      = ar['horarios'][initHour][0]
+        self.quota        = ar['horarios'][initHour][1]
+        self.participants = ar['horarios'][initHour][2]
+        self.description  = areg[3]
+        self.vCalendar    = areg[4]
+        self.name         = areg[0]
+        self.defaultQuota = areg[2]
 
    def reportAvailableAppointments(self,onDay=None,untilDay=None):
       """onDay is expected to be a datetime object """
       if onDay is None: # For today
          fromTimeEpoch = time() # From now on
-	 toTimeEpoch   = formatDate((date.today() + timedelta(1)).timetuple()[0:5])[2]
+         toTimeEpoch   = formatDate((date.today() + timedelta(1)).timetuple()[0:5])[2]
       else:             # Or any other day
-	 fromTimeEpoch = formatDate(onDay.timetuple()[0:5])[2]
-	 if untilDay is not None:
-            toTimeEpoch = formatDate((untilDay + timedelta(1)).timetuple()[0:5])[2]
-	 else:
-            toTimeEpoch = fromTimeEpoch + 86400 # plus one day in seconds
+         fromTimeEpoch = formatDate(onDay.timetuple()[0:5])[2]
+      if untilDay is not None:
+         toTimeEpoch = formatDate((untilDay + timedelta(1)).timetuple()[0:5])[2]
+      else:
+         toTimeEpoch = fromTimeEpoch + 86400 # plus one day in seconds
 
 #      first get the initHours for the day
       appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
@@ -81,18 +81,17 @@ class ActivityRegister(object):
       appointmentsForToday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
       return appointmentsForToday
 
-# TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro. availableAppointments
 
 
    def rawReport(self):
-       """Outputs all users and its data 
+       """Outputs all users and its data
        in a given activity at an initHour
        """
        sortedPeople = list()
        people  = self.getParticipantsName()
-       people.sort(key=lambda vence: vence.name)   # sort by name 
+       people.sort(key=lambda vence: vence.name)   # sort by name
        for c in people:
-	       sortedPeople.append(c.name+", "+c.credits+" @ "+c.expDate.rstrip(' ')+" ("+c.phone+")") #ACA ver que hacer con repr(c.expDate)
+           sortedPeople.append(c.name+", "+c.credits+" @ "+c.expDate.rstrip(' ')+" ("+c.phone+")") #ACA ver que hacer con repr(c.expDate)
        initHourEpoch = formatDate(localtime(float(self.initHour))[0:5])[0:2]
        #datetime(y,m,d,h,mi,s).strftime("%c").decode('utf-8')
        rawData = ('{},{}'.format(self.activity,initHourEpoch),sortedPeople) # a tuple with string and other string
@@ -106,7 +105,7 @@ class ActivityRegister(object):
       todayAtZeroAME    = formatDate(todayAtZeroAM.timetuple()[0:5])[2]
       tomorrowAtZeroAM  = todayAtZeroAM + timedelta(days=1)
       tomorrowAtZeroAME = formatDate(tomorrowAtZeroAM.timetuple()[0:5])[2]
-      lastWeek          = todayAtZeroAM - timedelta(days=7) 
+      lastWeek          = todayAtZeroAM - timedelta(days=7)
       lastWeekEpoch     = formatDate(lastWeek.timetuple()[0:5])[2]
       lastMonth         = todayAtZeroAM - timedelta(days=30)
       lastMonthEpoch    = formatDate(lastMonth.timetuple()[0:5])[2]
@@ -115,14 +114,13 @@ class ActivityRegister(object):
       appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
       if period is "mensual":
          timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastMonthEpoch and float(ihs) < todayEpoch]
-	 reportList = ['Reporte mensual:'] 
+      reportList = ['Reporte mensual:']
       if period is "semanal":
          timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastWeekEpoch and float(ihs) < todayAtZeroAME]
-	 reportList = ['Reporte semanal:'] 
+      reportList = ['Reporte semanal:']
       if period is "diario":
          timeRange = [ihs for ihs in appointmentsHours if float(ihs) > todayAtZeroAME and float(ihs) < tomorrowAtZeroAME]
-	 reportList = ['Reporte del día:']
-
+      reportList = ['Reporte del día:']
 
       for initHour in timeRange:
          ar = ActivityRegister(self.database, self.activity, initHour)
@@ -131,60 +129,60 @@ class ActivityRegister(object):
 
 
    def update(self,
-		endHour=None,
-		quota='1',
-		participants=None,
-		description=None,
-		vCalendar=None):
-	"""Method to update any value from activity.
-	Optional params:
-	endHour,
-	quota,
-	participants (If phone numbers are given with the '-' sign, they will be
-	deleted),
-	description,
-	vCalendar.
-	"""
+        endHour=None,
+        quota='1',
+        participants=None,
+        description=None,
+        vCalendar=None):
+        """Method to update any value from activity.
+        Optional params:
+        endHour,
+        quota,
+        participants (If phone numbers are given with the '-' sign, they will be
+        deleted),
+        description,
+        vCalendar.
+        """
         # Update endHour and quota:
         if endHour == None:
-	    endHour = self.endHour
-	else:
-	    self.endHour = endHour
+            endHour = self.endHour
+        else:
+            self.endHour = endHour
         if quota   == '1':
-	    quota = self.quota
-	else :
-	    self.quota = quota
+            quota = self.quota
+        else:
+            self.quota = quota
         #
-	objetoHorario = self.loadReg()
-	# Modify temporarly Horario object with updated values, except for participants
-	objetoHorario.addAppointment(self.initHour,endHour,quota,self.participants)
+        objetoHorario = self.loadReg()
+        # Modify temporarly Horario object with updated values, except for participants
+        objetoHorario.addAppointment(self.initHour,endHour,quota,self.participants)
         if participants is not None:
-	    delParticipants = []
-	    addParticipants = []
-	    if type(participants) is str:
+            delParticipants = []
+            addParticipants = []
+            if type(participants) is str:
                 if participants.startswith('-'):
-		     # create remove
+                    # create remove
                      delParticipants = participants.strip('-')
-		elif participants.isdigit():
-		     # create Add
-		     addParticipants = participants
-		else:
-		     print("Participant is not a valid telephon number")
-	    elif type(participants) is list:
+                elif participants.isdigit():
+                    # create Add
+                    addParticipants = participants
+                else:
+                    print("Participant is not a valid telephon number")
+            elif type(participants) is list:
                 # Create a list with numbers to remove from participants:
-		delParticipants = set([item.strip('-') for item in participants if item.startswith('-')])
-	        # Create a list with numbers to add to participants:
-	        addParticipants = set([item for item in participants if item.isdigit()])
-	    # Remove participants
-	    objetoHorario.removeParticipant(self.initHour,delParticipants)
-	    # Add participants
+                delParticipants = set([item.strip('-') for item in participants if item.startswith('-')])
+                # Create a list with numbers to add to participants:
+                addParticipants = set([item for item in participants if item.isdigit()])
+            # Remove participants
+            objetoHorario.removeParticipant(self.initHour,delParticipants)
+            # Add participants
             objetoHorario.addParticipant(self.initHour,addParticipants)
         # Now that everything was done this auxiliary Horario object, dump it to DDDBB:
         # Write to database
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
         self.__init__(self.database,self.activity,self.initHour)
-#END of def update 
+#END of def update
    def cancelAppointment(self, participants):
 	"""Method to cancel the appointment of 'participants' from the current initHour"""
 	# TODO: ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
@@ -572,6 +570,17 @@ def getUserRegister(database,phoneNumber):
    cursor.close()
    return otraLista # Should I return data as: Name, activity (n credits expire on 'expireDate')? 
 
+def humanActivityCreditsExpire(activityCreditsExpire):
+   """Will give you a dictionary with the activity as the key, and a tuple with credits and expire date
+   in human format. The input param must have the output format of getUserRegister for activityCredditsExpire"""
+   activitiesAndCreditsExpireDatesDictionary = dict()
+   activityCreditsExpireDict = json.loads(activityCreditsExpire)
+   for activity in activityCreditsExpireDict:
+      credits,expireDate = activityCreditsExpireDict[activity].split('@')
+      activityCreditsExpireDict[activity] = (credits,formatDate(localtime(float(expireDate))[0:5])[1])
+   return activityCreditsExpireDict
+
+
 
 def modifyRegisterCredit(database, phoneNumber, activity, newCredits, name=None, vCard=None):
 	"""
@@ -674,6 +683,5 @@ class VencimientosCreditos:
 
 # TODO: Crear un metodo para obtener todas las initHour a partir de un rango dado. DONE periodReport 
 # TODO: Crear un método que construya el initHour a partir de datos humanos (lunes 18:00hs, por ej.) DONE formatDate
-#       lunes 10:00 12:00 14:30 18:00 21:15 23:00
 
 # TODO: Crear método que ofrezca turnos disponibles, del dia corriente, o del día indicado por parámetro. DONE reportAvailableAppointments
