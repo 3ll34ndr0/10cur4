@@ -76,6 +76,44 @@ class ManageAppointments(ActivityRegister):
 #   def asdfasdf:
 
 
+class VistaMinable(ActivityRegister):
+    """Esta clase será utilizada para crear una vista minable con
+    los datos que se generan con el uso del sistema"""
+    def __init__(self, phoneNumber,activity):
+        self.phoneNumber = phoneNumber
+        self.activity    = activity
+        self.initHour    = "0" # This initHour is a dummy value, just to start the object. Could I use it to store any useful data on it, like participants are the admins of that activity.
+        self.database    = databaseAccess[self.phoneNumber]
+        self.timeTuple   = None # (year,month,day,hour,minute)
+        try:
+           super(VistaMinable, self).__init__(self.database,self.activity,self.initHour)
+        except KeyError as e:
+           print("Error: Your telephone's number has no access to this system")
+    def create(self):
+        print("a ver che...")
+        from forecastiopy import ForecastIO
+        # TODO: A method that will get the weather variables for the activity initHour when the time comes.
+        Cordoba = [-31.4173,-64.1833]
+        language= 'es'
+        forecastAPI='b71a6d987aa5485ba92291c40eec2941'
+        _,timeRange = ActivityRegister(
+                      self.database,self.activity,self.initHour).periodReport('semanal')
+        datosTiempo = list()
+
+        timeRange.sort()
+        # Strip the '.0' of each string number
+        timeRange = map(lambda st:st.rstrip('0').rstrip('.'), timeRange)
+        for time in timeRange:
+            fio = ForecastIO.ForecastIO(forecastAPI, latitude=Cordoba[0], longitude=Cordoba[1],lang=language)
+            fio.time_url=time
+            forecast = json.loads(fio.http_get(fio.get_url()))
+            datosTiempo.append(forecast['currently']['apparentTemperature'])
+        return timeRange,datosTiempo
 
 
 
+#        current = FIOCurrently.FIOCurrently(fio)
+
+#        current.apparentTemperature
+#        current.summary
+#        current.humidity

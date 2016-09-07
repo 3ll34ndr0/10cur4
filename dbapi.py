@@ -98,7 +98,8 @@ class ActivityRegister(object):
        return rawData
 
    def periodReport(self, period):
-      """Expects an iterable with valid initHours on it. timeRange is day,week,month"""
+      """Expects an iterable with valid initHours on it. 'period' is
+      day,week,month in the language defined"""
       today             = date.today()
       todayEpoch        = formatDate(today.timetuple()[0:5])[2]
       todayAtZeroAM     = datetime.combine(today,tm(0,0))
@@ -125,7 +126,7 @@ class ActivityRegister(object):
       for initHour in timeRange:
          ar = ActivityRegister(self.database, self.activity, initHour)
          reportList.append(ar.rawReport())
-      return reportList
+      return reportList,timeRange
 
 
    def update(self,
