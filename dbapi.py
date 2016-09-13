@@ -63,7 +63,8 @@ class ActivityRegister(object):
         self.name         = areg[0]
         self.defaultQuota = areg[2]
 
-   def reportAvailableAppointments(self,onDay=None,untilDay=None):
+   def reportAvailableAppointments(self, onDay = None, untilDay = None,
+                                   humanOutput = False):
       """onDay is expected to be a datetime object """
       if onDay is None: # For today
          fromTimeEpoch = time() # From now on
@@ -78,14 +79,19 @@ class ActivityRegister(object):
 #      first get the initHours for the day
       appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
       appointmentsHours.sort()
-      appointmentsForToday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
-      return appointmentsForToday
+      appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
+#      if humanOutput is True:
+#        appointmentsForTheday =
+      return appointmentsForTheday
 
 
 
    def rawReport(self):
        """Outputs all users and its data
        in a given activity at an initHour
+       Returns:
+         (activity,initHour),["name1, credits1 @
+         expireDate1","name2, credits2 @ expireDate2",...,"nameN, creditsN @ expireDateN"]
        """
        sortedPeople = list()
        people  = self.getParticipantsName()
@@ -97,36 +103,39 @@ class ActivityRegister(object):
        rawData = ('{},{}'.format(self.activity,initHourEpoch),sortedPeople) # a tuple with string and other string
        return rawData
 
+   def howMuch(self):
+       return len(self.participants)
+
    def periodReport(self, period):
-      """Expects an iterable with valid initHours on it. 'period' is
-      day,week,month in the language defined"""
-      today             = date.today()
-      todayEpoch        = formatDate(today.timetuple()[0:5])[2]
-      todayAtZeroAM     = datetime.combine(today,tm(0,0))
-      todayAtZeroAME    = formatDate(todayAtZeroAM.timetuple()[0:5])[2]
-      tomorrowAtZeroAM  = todayAtZeroAM + timedelta(days=1)
-      tomorrowAtZeroAME = formatDate(tomorrowAtZeroAM.timetuple()[0:5])[2]
-      lastWeek          = todayAtZeroAM - timedelta(days=7)
-      lastWeekEpoch     = formatDate(lastWeek.timetuple()[0:5])[2]
-      lastMonth         = todayAtZeroAM - timedelta(days=30)
-      lastMonthEpoch    = formatDate(lastMonth.timetuple()[0:5])[2]
+        """Expects an iterable with valid initHours on it. 'period' is
+        day,week,month in the language defined"""
+        today             = date.today()
+        todayEpoch        = formatDate(today.timetuple()[0:5])[2]
+        todayAtZeroAM     = datetime.combine(today,tm(0,0))
+        todayAtZeroAME    = formatDate(todayAtZeroAM.timetuple()[0:5])[2]
+        tomorrowAtZeroAM  = todayAtZeroAM + timedelta(days=1)
+        tomorrowAtZeroAME = formatDate(tomorrowAtZeroAM.timetuple()[0:5])[2]
+        lastWeek          = todayAtZeroAM - timedelta(days=7)
+        lastWeekEpoch     = formatDate(lastWeek.timetuple()[0:5])[2]
+        lastMonth         = todayAtZeroAM - timedelta(days=30)
+        lastMonthEpoch    = formatDate(lastMonth.timetuple()[0:5])[2]
 
-      # The next line is very criptic, but it really gets the job done:
-      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
-      if period is "mensual":
-         timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastMonthEpoch and float(ihs) < todayEpoch]
-      reportList = ['Reporte mensual:']
-      if period is "semanal":
-         timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastWeekEpoch and float(ihs) < todayAtZeroAME]
-      reportList = ['Reporte semanal:']
-      if period is "diario":
-         timeRange = [ihs for ihs in appointmentsHours if float(ihs) > todayAtZeroAME and float(ihs) < tomorrowAtZeroAME]
-      reportList = ['Reporte del día:']
+        # The next line is very criptic, but it really gets the job done:
+        appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
+        if period is "mensual":
+            timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastMonthEpoch and float(ihs) < todayEpoch]
+            reportList = ['Reporte mensual:']
+        if period is "semanal":
+            timeRange = [ihs for ihs in appointmentsHours if float(ihs) > lastWeekEpoch and float(ihs) < todayAtZeroAME]
+            reportList = ['Reporte semanal:']
+        if period is "diario":
+            timeRange = [ihs for ihs in appointmentsHours if float(ihs) > todayAtZeroAME and float(ihs) < tomorrowAtZeroAME]
+            reportList = ['Reporte del día:']
 
-      for initHour in timeRange:
-         ar = ActivityRegister(self.database, self.activity, initHour)
-         reportList.append(ar.rawReport())
-      return reportList,timeRange
+        for initHour in timeRange:
+            ar = ActivityRegister(self.database, self.activity, initHour)
+            reportList.append(ar.rawReport())
+        return reportList,timeRange
 
 
    def update(self,
@@ -666,6 +675,9 @@ def formatDate(timeTuple):
    hora_str = datetime.time(hour,minute).strftime("%H:%M%p")
    return (hora_str,Fecha_str,horaFecha) 
 
+class HandleDateTime(datetime):
+    def __init__(self,ano,mes,dia,hora=0,minuto=0):
+        print(datetime.ctime(datetime(ano,mes,dia,hora,minuto)))
 
 
 class VencimientosCreditos:

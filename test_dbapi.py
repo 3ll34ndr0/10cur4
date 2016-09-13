@@ -21,9 +21,10 @@ import locale
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
 ################################################################
 horariosDisponibles = [timedelta(hours=hour) for hour in range(10,23,2)]
-today = datetime.date.today()
+#today = datetime.date.today()
+today = datetime.date(2016,9,4)
 todayAtZeroAM = datetime.datetime.combine(today,datetime.time(0,0))
-daysOfThisWeek = [todayAtZeroAM+timedelta(days=i) for i in range(0,6)]
+daysOfThisWeek = [todayAtZeroAM+timedelta(days=i) for i in range(0,7)]
 a = [[dia+hora for hora in horariosDisponibles] for dia in daysOfThisWeek]
 piletaHorarios = list()
 for i in a:
@@ -50,7 +51,7 @@ class ActivityRegisterTest(unittest.TestCase):
         self.activity     = activity
 	self.initHour     = str(initHour)
 	self.endHour      = None
-	self.quota        = "1" # if ever change this, should use the update(quota='newvalue')
+	self.quota        = "10" # if ever change this, should use the update(quota='newvalue')
 	self.participants = map(unicode,random.sample(participantsOK, random.randint(0,int(self.quota))))
 	self.description  = "una cosa nomas te digo..."
 	self.vCalendar    = "algun dia sera usado"
