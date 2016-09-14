@@ -2,6 +2,8 @@
 # coding: latin-1
 import json
 import locale
+from dbapi import formatDate
+import time
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
 #####################################################################
@@ -73,9 +75,14 @@ class ManageAppointments(ActivityRegister):
          raise e
       # Done with checking if phone is in user's database.
       # Check if the activity initHour exists:
-#         print(self.reportAvailableAppointments(onDay=initHour))
-      if initHour in self.reportAvailableAppointments(onDay=initHour):
+      initHourEpoch= formatDate(initHour.timetuple()[0:5])[2]
+      aaps = map(float,
+                 self.reportAvailableAppointments(onDay=initHour.replace(hour   = 0,
+                                                                         minute = 0)))
+      print(initHour,map(lambda x: time.localtime(x),aaps))
+      if initHourEpoch in aaps:
              print("Bingoooo!")
+             print("available appointment at {}".format(initHour))
       else:
              print("Message: No available appointment at {}".format(initHour))
       # Now make the friggin' appointment:
