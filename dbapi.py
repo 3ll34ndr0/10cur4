@@ -454,7 +454,7 @@ def createUserRegisterDB(
     try:	
         cursor.execute('''INSERT INTO cuentaUsuarios(phone, name, activityCreditExpire, vCard)
 	VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard))
-	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard))
+	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
 	db.commit()
     except sqlite3.IntegrityError as e:
 	db.rollback()
