@@ -23,12 +23,12 @@ with open("hongaPors.txt", "r") as file:                            #
 hongaPors = map(lambda pl: pl.rstrip('\n').split(','),hongaPors)    #
                                                                     #
 databaseAccess = dict()                                             #
-for [owner,database] in hongaPors:                                  #
-   databaseAccess[owner] = database                                 #
+for [owner,database,activity] in hongaPors:                         #
+   databaseAccess[owner] = database,activity                        #
 #####################################################################
 # Now whenever I want to access a database, I use the following     #
 # dictionary:                                                       #
-# databaseAccess[telephoneNumber]                                   #
+# databaseName,defaultActivity = databaseAccess[telephoneNumber]    #
 #                                                                   #
 #####################################################################
 # TODO: Crear método que reserve turno y descuente crédito (sólo puede tener crédito negativo de -1?, creo
@@ -49,16 +49,22 @@ for [owner,database] in hongaPors:                                  #
 class ManageAppointments(ActivityRegister):
    """This class will give access to all method defined in the dbapi, and extend its functionality
       with lots of verifications before actually calling those methods... """
-   def __init__(self, phoneNumber,activity):
+   def __init__(self, phoneNumber,activity=None):
      self.phoneNumber = phoneNumber
-     self.activity    = activity
      self.initHour    = "0" # This initHour is a dummy value, just to start the object. Could I use it to store any useful data on it, like participants are the admins of that activity.
-     self.database    = databaseAccess[self.phoneNumber]
-     self.timeTuple   = None # (year,month,day,hour,minute)
+     if activity is None:
+         self.database,self.activity = databaseAccess[self.phoneNumber]
+     else:
+         self.database,_ = databaseAccess[self.phoneNumber]
+         self.activity   = activity
+     self.timeTuple = None # (year,month,day,hour,minute)
      try:
         super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
+        self.accountType     = "manager"
+        self.defaultActivity = activity
      except KeyError as e:
         print("Error: Your telephone's number has no access to this system")
+        print("or there is no activity named as {}".format(activity))
    def makeAppointment(self,phoneNumber,activity,initHour):
       """ Add one phoneNumber to a given activity's initHour, if it exists and if the phone is
        in the database. """
