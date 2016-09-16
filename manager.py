@@ -17,7 +17,7 @@ from dbapi import ActivityRegister, getUserRegister, humanActivityCreditsExpire
 # This code could be in a separate file and import the dictionary   #
 # from that "module".                                               #
 # Get a list of phones and database with hongaPor privileges        #
-with open("hongaPors.txt", "r") as file:                            #
+with open("/home/lean/arena/10cur4/hongaPors.txt", "r") as file:                            #
    hongaPors = file.readlines()                                     #
                                                                     #
 hongaPors = map(lambda pl: pl.rstrip('\n').split(','),hongaPors)    #
@@ -52,13 +52,13 @@ class ManageAppointments(ActivityRegister):
    def __init__(self, phoneNumber,activity=None):
      self.phoneNumber = phoneNumber
      self.initHour    = "0" # This initHour is a dummy value, just to start the object. Could I use it to store any useful data on it, like participants are the admins of that activity.
-     if activity is None:
-         self.database,self.activity = databaseAccess[self.phoneNumber]
-     else:
-         self.database,_ = databaseAccess[self.phoneNumber]
-         self.activity   = activity
      self.timeTuple = None # (year,month,day,hour,minute)
      try:
+        if activity is None:
+            self.database,self.activity = databaseAccess[self.phoneNumber]
+        else:
+            self.database,_ = databaseAccess[self.phoneNumber]
+            self.activity   = activity
         super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
         self.accountType     = "manager"
         self.defaultActivity = activity
@@ -98,8 +98,8 @@ class VistaMinable(ActivityRegister):
     """Esta clase será utilizada para crear una vista minable con
     los datos que se generan con el uso del sistema"""
     #####################
-    import sklearn as sk
-    import numpy as np
+#    import sklearn as sk
+#    import numpy as np
     #####################
     target_class_name = 'participants'  #Default class
     feature_names     = ['apparentTemperature', 'precipIntensity','humidity',
@@ -221,3 +221,4 @@ class VistaMinable(ActivityRegister):
         graph.write_png('asistencia.png')
         from IPython.core.display import Image
         Image(filename='asistencia.png')
+###
