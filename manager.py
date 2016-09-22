@@ -2,7 +2,7 @@
 # coding: latin-1
 import json
 import locale
-from dbapi import formatDate
+from dbapi import formatDate, createUserRegisterDB
 import time
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
@@ -93,6 +93,22 @@ class ManageAppointments(ActivityRegister):
              print("Message: No available appointment at {}".format(initHour))
       # Now make the friggin' appointment:
       #      ar = ActivityRegister(
+   def createUserRegisterFromVCard(self,vCard,activity=None,credit=None,expDate=None):
+          import vobject
+#   if (activity or credit) is not None: return "You must give both values: activity and credits. Or you can give nither of them"
+          vcObj = vobject.readOne(vCard)
+          name  = vcObj.contents['fn'][0].value
+          phonedata = vcObj.contents['tel'][0].value
+          phone = phonedata.lstrip('+').replace(' ','').replace('-','') #Not very elegant, but ...
+          createUserRegisterDB(self.database,
+		        phone,
+			name,
+			activity,
+			credit,
+			vCard,
+			expDate)
+
+
 
 class VistaMinable(ActivityRegister):
     """Esta clase será utilizada para crear una vista minable con

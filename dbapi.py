@@ -296,7 +296,12 @@ class ActivityRegister(object):
          credits,expDate = activityDict[self.activity].split('@')
 	 creditsObj.append(VencimientosCreditos(name,float(expDate),credits,phoneNumber))
       return creditsObj
-      
+
+   def getName(self,phoneNumber):
+	   return getUserRegister(self.database,phoneNumber)
+
+
+
 def createVcard(name,phone):
    """Create vcard formated string with name (given and family) and phoneNumber given"""
    import vobject
