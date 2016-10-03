@@ -194,82 +194,82 @@ class ActivityRegister(object):
         self.__init__(self.database,self.activity,self.initHour)
 #END of def update
    def cancelAppointment(self, participants):
-	"""Method to cancel the appointment of 'participants' from the current initHour"""
-	# TODO: ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
-	# sin perder información para poder borrar sòlo los participantes.
+        """Method to cancel the appointment of 'participants' from the current initHour"""
+        # TODO: ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
+        # sin perder información para poder borrar sòlo los participantes.
         objetoHorario = self.loadReg()
-	# Remove participants
-	objetoHorario.removeParticipant(self.initHour,participants)
-	# Write to database
-	self.writeDatabase(objetoHorario)
-	# Update object with database values
-	self.__init__(self.database,self.activity,self.initHour)
+        # Remove participants
+        objetoHorario.removeParticipant(self.initHour,participants)
+        # Write to database
+        self.writeDatabase(objetoHorario)
+        # Update object with database values
+        self.__init__(self.database,self.activity,self.initHour)
 
    def remove(self,
 	       participants=None,
 	       initHour=None
 	       ):
-	"""
-	Method to remove participants, OR erase all information for a given initHour
-	"""
-	#Me parece un bug que initHour no checkee por None
-	if (participants or initHour) is None:
-	    return
+        """
+       	Method to remove participants, OR erase all information for a given initHour
+       	"""
+       	#Me parece un bug que initHour no checkee por None
+       	if (participants or initHour) is None:
+       	    return
         objetoHorario = Horario(self.name, self.initHour,self.endHour,self.quota,self.participants)
-	if (participants is not None and initHour is not None):
-	    return
+        if (participants is not None and initHour is not None):
+            return
             print("You can not use this method this way. You can delete either participants of the current initHour OR all information of a given initHour, not both.") 
-	if participants is not None:
+        if participants is not None:
             objetoHorario.removeParticipant(self.initHour,participants)
-	    # Write to database
-	    self.writeDatabase(objetoHorario)
-	    # Update object with database values
-	    self.__init__(self.database,self.activity,self.initHour)
-	if initHour is not None: # 'Erase' all information from activity at initHour
-	     objetoHorario = Horario(self.name,self.initHour,'') 
-	     description=''
-	     vCalendar  =''
- 	     # Write to database
-	     self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
-	     # Update object with database values
+            # Write to database
+       	    self.writeDatabase(objetoHorario)
+            # Update object with database values
+       	    self.__init__(self.database,self.activity,self.initHour)
+        if initHour is not None: # 'Erase' all information from activity at initHour
+             objetoHorario = Horario(self.name,self.initHour,'') 
+       	     description=''
+             vCalendar  =''
+       	     # Write to database
+             self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
+             # Update object with database values
              self.__init__(self.database,self.activity,self.initHour)
 
    def writeDatabase(self,
 	              objetoHorario,
 		      description=None,
 		      vCalendar=None):
-	"""
-	Useful method that only writes to DDBB
-	"""
-	horariosJSON  = json.dumps(objetoHorario, default=jdefault)
+        """
+        Useful method that only writes to DDBB
+        """
+        horariosJSON  = json.dumps(objetoHorario, default=jdefault)
         try:	
-    	    db = sqlite3.connect(self.database)
+            db = sqlite3.connect(self.database)
             cursor = db.cursor()
-	    # Aca va un update only horario column.
+            # Aca va un update only horario column.
             cursor.execute(
             '''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''', (horariosJSON, self.activity))
             message = "Message: {}, ".format(horariosJSON)
             if description is not None:
-	        cursor.execute(
-	        '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, self.activity))
+                cursor.execute(
+                '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, self.activity))
                 message += "{}, ".format(description) 
-		self.description = description
-	    if vCalendar is not None:
-	        cursor.execute(
-	        '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, self.activity))
-	        message += "{}, ".format(vCalendar) 
-		self.vCalendar = vCalendar
-	    message += "added to {}".format(self.activity) 
-	    db.commit()
+                self.description = description
+            if vCalendar is not None:
+                cursor.execute(
+                '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, self.activity))
+                message += "{}, ".format(vCalendar) 
+                self.vCalendar = vCalendar
+            message += "added to {}".format(self.activity) 
+        db.commit()
         except sqlite3.IntegrityError as e:
-	    db.rollback()
-	    raise e
+            db.rollback()
+            raise e
         except sqlite3.OperationalError as e:
             db.rollback()
-	    raise e
+            raise e
         finally:
-	    locals()
-    	    cursor.close()
+            locals()
+            cursor.close()
 
    def loadReg(self):
       """Method that creates an Horario object from current activity and database data"""
@@ -561,8 +561,8 @@ def createUserRegisterDB(
     try:	
         cursor.execute('''INSERT INTO cuentaUsuarios(phone, name, activityCreditExpire, vCard)
 	VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard))
-	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
 	db.commit()
+	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
     except sqlite3.IntegrityError as e:
 	db.rollback()
 	print("WARNING: Phone number {} already exists! Nothing done.".format(phone))
