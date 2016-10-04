@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# coding: latin-1
+# coding: utf-8
 import sqlite3
 import json
 from horario import Horario
@@ -14,10 +14,10 @@ from time import time,localtime,strftime
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
 
 class ActivityRegister(object):
-   """
-   This class is intended to create an object to handle the activity register in database.
-   """
-   def __init__(self,
+    """
+    This class is intended to create an object to handle the activity register in database.
+    """
+    def __init__(self,
 		database,
 		activity,
 		initHour,
@@ -63,7 +63,7 @@ class ActivityRegister(object):
         self.name         = areg[0]
         self.defaultQuota = areg[2]
 
-   def reportAvailableAppointments(self, onDay = None, untilDay = None,
+    def reportAvailableAppointments(self, onDay = None, untilDay = None,
                                    humanOutput = False):
       """onDay is expected to be a datetime object """
       if onDay is None: # For today
@@ -86,27 +86,27 @@ class ActivityRegister(object):
 
 
 
-   def rawReport(self):
-       """Outputs all users and its data
-       in a given activity at an initHour
-       Returns:
-         (activity,initHour),["name1, credits1 @
-         expireDate1","name2, credits2 @ expireDate2",...,"nameN, creditsN @ expireDateN"]
-       """
-       sortedPeople = list()
-       people  = self.getParticipantsName()
-       people.sort(key=lambda vence: vence.name)   # sort by name
-       for c in people:
-           sortedPeople.append(c.name+", "+c.credits+" @ "+c.expDate.rstrip(' ')+" ("+c.phone+")") #ACA ver que hacer con repr(c.expDate)
-       initHourEpoch = formatDate(localtime(float(self.initHour))[0:5])[0:2]
-       #datetime(y,m,d,h,mi,s).strftime("%c").decode('utf-8')
-       rawData = ('{},{}'.format(self.activity,initHourEpoch),sortedPeople) # a tuple with string and other string
-       return rawData
+    def rawReport(self):
+        """Outputs all users and its data
+        in a given activity at an initHour
+        Returns:
+          (activity,initHour),["name1, credits1 @
+          expireDate1","name2, credits2 @ expireDate2",...,"nameN, creditsN @ expireDateN"]
+        """
+        sortedPeople = list()
+        people  = self.getParticipantsName()
+        people.sort(key=lambda vence: vence.name)   # sort by name
+        for c in people:
+            sortedPeople.append(c.name+", "+c.credits+" @ "+c.expDate.rstrip(' ')+" ("+c.phone+")") #ACA ver que hacer con repr(c.expDate)
+        initHourEpoch = formatDate(localtime(float(self.initHour))[0:5])[0:2]
+        #datetime(y,m,d,h,mi,s).strftime("%c").decode('utf-8')
+        rawData = ('{},{}'.format(self.activity,initHourEpoch),sortedPeople) # a tuple with string and other string
+        return rawData
 
-   def howMuch(self):
-       return len(self.participants)
+    def howMuch(self):
+        return len(self.participants)
 
-   def periodReport(self, period):
+    def periodReport(self, period):
         """Expects an iterable with valid initHours on it. 'period' is
         day,week,month in the language defined"""
         today             = date.today()
@@ -138,7 +138,7 @@ class ActivityRegister(object):
         return reportList,timeRange
 
 
-   def update(self,
+    def update(self,
         endHour=None,
         quota='1',
         participants=None,
@@ -193,87 +193,86 @@ class ActivityRegister(object):
         # Update this object with database values
         self.__init__(self.database,self.activity,self.initHour)
 #END of def update
-   def cancelAppointment(self, participants):
-	"""Method to cancel the appointment of 'participants' from the current initHour"""
-	# TODO: ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
-	# sin perder información para poder borrar sòlo los participantes.
+    def cancelAppointment(self, participants):
+        """Method to cancel the appointment of 'participants' from the current initHour"""
+        # TODO: ACA SEGUIR el problema es que tengo que construir correctamente el objeto horario
+        # sin perder información para poder borrar sòlo los participantes.
         objetoHorario = self.loadReg()
-	# Remove participants
-	objetoHorario.removeParticipant(self.initHour,participants)
-	# Write to database
-	self.writeDatabase(objetoHorario)
-	# Update object with database values
-	self.__init__(self.database,self.activity,self.initHour)
+        # Remove participants
+        objetoHorario.removeParticipant(self.initHour,participants)
+        # Write to database
+        self.writeDatabase(objetoHorario)
+        # Update object with database values
+        self.__init__(self.database,self.activity,self.initHour)
 
-   def remove(self,
-	       participants=None,
-	       initHour=None
-	       ):
-	"""
-	Method to remove participants, OR erase all information for a given initHour
-	"""
-	#Me parece un bug que initHour no checkee por None
-	if (participants or initHour) is None:
-	    return
+    def remove(self,participants=None,initHour=None):
+        """
+        Method to remove participants, OR erase all information for a given initHour
+        """
+        #Me parece un bug que initHour no checkee por None
+        if (participants or initHour) is None:
+           return
         objetoHorario = Horario(self.name, self.initHour,self.endHour,self.quota,self.participants)
-	if (participants is not None and initHour is not None):
-	    return
-            print("You can not use this method this way. You can delete either participants of the current initHour OR all information of a given initHour, not both.") 
-	if participants is not None:
+        if (participants is not None and initHour is not None):
+            return
+            print("You can not use this method this way. You can delete either participants of the current initHour OR all information of a given initHour, not both.")
+        if participants is not None:
             objetoHorario.removeParticipant(self.initHour,participants)
-	    # Write to database
-	    self.writeDatabase(objetoHorario)
-	    # Update object with database values
-	    self.__init__(self.database,self.activity,self.initHour)
-	if initHour is not None: # 'Erase' all information from activity at initHour
-	     objetoHorario = Horario(self.name,self.initHour,'') 
-	     description=''
-	     vCalendar  =''
- 	     # Write to database
-	     self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
-	     # Update object with database values
-             self.__init__(self.database,self.activity,self.initHour)
+            # Write to database
+            self.writeDatabase(objetoHorario)
+            # Update object with database values
+            self.__init__(self.database,self.activity,self.initHour)
+        if initHour is not None: # 'Erase' all information from activity at initHour
+            objetoHorario = Horario(self.name,self.initHour,'')
+            description=''
+            vCalendar  =''
+            # Write to database
+            self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
+            # Update object with database values
+            self.__init__(self.database,self.activity,self.initHour)
 
-   def writeDatabase(self,
-	              objetoHorario,
-		      description=None,
-		      vCalendar=None):
-	"""
-	Useful method that only writes to DDBB
-	"""
-	horariosJSON  = json.dumps(objetoHorario, default=jdefault)
-        try:	
-    	    db = sqlite3.connect(self.database)
+
+    def writeDatabase(self,
+                  objetoHorario,
+              description=None,
+              vCalendar=None):
+        """
+        Useful method that only writes to DDBB
+        """
+        horariosJSON  = json.dumps(objetoHorario, default=jdefault)
+        try:
+            db = sqlite3.connect(self.database)
             cursor = db.cursor()
-	    # Aca va un update only horario column.
+            # Aca va un update only horario column.
             cursor.execute(
             '''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''', (horariosJSON, self.activity))
             message = "Message: {}, ".format(horariosJSON)
             if description is not None:
-	        cursor.execute(
-	        '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, self.activity))
-                message += "{}, ".format(description) 
-		self.description = description
-	    if vCalendar is not None:
-	        cursor.execute(
-	        '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, self.activity))
-	        message += "{}, ".format(vCalendar) 
-		self.vCalendar = vCalendar
-	    message += "added to {}".format(self.activity) 
-	    db.commit()
+                cursor.execute(
+                '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, self.activity))
+                message += "{}, ".format(description)
+                self.description = description
+            if vCalendar is not None:
+                cursor.execute(
+                '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, self.activity))
+                message += "{}, ".format(vCalendar)
+                self.vCalendar = vCalendar
+            message += "added to {}".format(self.activity)
+            db.commit()
         except sqlite3.IntegrityError as e:
-	    db.rollback()
-	    raise e
+            db.rollback()
+            raise e
         except sqlite3.OperationalError as e:
             db.rollback()
-	    raise e
+            raise e
         finally:
-	    locals()
-    	    cursor.close()
+            locals()
+            cursor.close()
 
-   def loadReg(self):
+
+    def loadReg(self):
       """Method that creates an Horario object from current activity and database data"""
-      areg = getActivityRegister(self.database,self.activity) 
+      areg = getActivityRegister(self.database,self.activity)
       horarios = json.loads(getActivityRegister(self.database,self.activity)[1])
       h = horarios['horarios']
       # Get all keys from 'horarios'
@@ -287,18 +286,18 @@ class ActivityRegister(object):
          objetoHorario.addAppointment(key,h[key][0], h[key][1], h[key][2])
       return objetoHorario
 
-   def getParticipantsName(self):
+    def getParticipantsName(self):
       """Get all names and expire date from participants, from current database""" #and current initHour,activity
       creditsObj = list()
       for phone in self.participants:
-         phoneNumber, name, activityCreditsExpire, vCard = getUserRegister(self.database,phone) 	
-	 activityDict = json.loads(activityCreditsExpire)
-         credits,expDate = activityDict[self.activity].split('@')
-	 creditsObj.append(VencimientosCreditos(name,float(expDate),credits,phoneNumber))
+          phoneNumber, name, activityCreditsExpire, vCard = getUserRegister(self.database,phone) 
+          activityDict = json.loads(activityCreditsExpire)
+          credits,expDate = activityDict[self.activity].split('@')
+          creditsObj.append(VencimientosCreditos(name,float(expDate),credits,phoneNumber))
       return creditsObj
 
-   def getName(self,phoneNumber):
-	   return getUserRegister(self.database,phoneNumber)
+    def getName(self,phoneNumber):
+       return getUserRegister(self.database,phoneNumber)
 
 
 
@@ -324,12 +323,12 @@ def createUserRegisterFromVCard(database,vCard,activity=None,credit=None,expDate
    phonedata = vcObj.contents['tel'][0].value
    phone = phonedata.lstrip('+').replace(' ','').replace('-','') #Not very elegant, but ...
    createUserRegisterDB(database,
-		        phone,
-			name,
-			activity,
-			credit,
-			vCard,
-			expDate)
+            phone,
+            name,
+            activity,
+            credit,
+            vCard,
+            expDate)
 
 def createHumanDate(day,month,hour,mins):
    """Create an epoch datetime from date and time given in a non standard way"""
@@ -344,11 +343,11 @@ def createHumanDate(day,month,hour,mins):
    daysOfTheWeek = map(lambda d: d.lower(), list(calendar.day_name))
    if dayNumber is None:
       dayNumber = None
-  
 
-  
 
-   
+
+
+
 def createActivityRegister(
 		database, 
 		activity,
@@ -560,7 +559,7 @@ def createUserRegisterDB(
 	    activityCreditExpire = activity # None
     try:	
         cursor.execute('''INSERT INTO cuentaUsuarios(phone, name, activityCreditExpire, vCard)
-	VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard))
+	VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard.encode('utf-8')))
 	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
 	db.commit()
     except sqlite3.IntegrityError as e:
