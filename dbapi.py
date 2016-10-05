@@ -597,49 +597,49 @@ def humanActivityCreditsExpire(activityCreditsExpire):
 
 
 def modifyRegisterCredit(database, phoneNumber, activity, newCredits, name=None, vCard=None):
-	"""
-	This function can be used to add new fields or update existing ones.
-	When adding new credits, it updates for 1 month the expire date.
-	TODO: Take into account the type of each field (credits should be an int, ...)
-	"""
-	# First I get the whole register using that phone number
-        (phone, name, activityCreditsExpire,vCard) = getUserRegister(database,phoneNumber) 	
-	# Get activities' list
-	if not activityCreditsExpire == None:
-		print("tipo %s y valor: %s" % (type(activityCreditsExpire),activityCreditsExpire))
-		activityDict= json.loads(activityCreditsExpire)
-		(credits, oldExpireDate) = activityDict[activity].split('@')
-	else:
-	   	activityDict = {}
-	   	credits = newCredits
+    """
+    This function can be used to add new fields or update existing ones.
+    When adding new credits, it updates for 1 month the expire date.
+    TODO: Take into account the type of each field (credits should be an int, ...)
+    """
+    # First I get the whole register using that phone number
+    (phone, name, activityCreditsExpire,vCard) = getUserRegister(database,phoneNumber)
+    # Get activities' list
+    if not activityCreditsExpire == None:
+        print("tipo %s y valor: %s" % (type(activityCreditsExpire),activityCreditsExpire))
+        activityDict= json.loads(activityCreditsExpire)
+        (credits, oldExpireDate) = activityDict[activity].split('@')
+    else:
+        activityDict = {}
+        credits = newCredits
 
 	#######   Create new expire date if adding credits
-	if int(newCredits) > 0: # When adding new credits, update expire date of credits
-		expireDate = repr(time() + 2628000)  # Next month (30 days + 10 hs.) at this time in epoch format
-	else:
-		expireDate = oldExpireDate # Don't modify expire date because we are not adding new credits
-	####### 
+    if int(newCredits) > 0: # When adding new credits, update expire date of credits
+        expireDate = repr(time() + 2628000)  # Next month (30 days + 10 hs.) at this time in epoch format
+    else:
+        expireDate = oldExpireDate # Don't modify expire date because we are not adding new credits
+	#######
 
 	# Get credits and activity's phoneNumber)
 	# Find activity
-	if activity in activityDict: # update only credits
-	        credits = str( int(credits) + int(newCredits) ).encode('utf-8')
+    if activity in activityDict: # update only credits
+        credits = str( int(credits) + int(newCredits) ).encode('utf-8')
 
-	activityDict[activity] = '@'.join((credits,expireDate))
-	fechaHumana = strftime("%d %b %Y", localtime(float(expireDate)))
-	print("En {0} tiene {1} creditos hasta el {2} inclusive".format(activity, credits, fechaHumana))
-	# Now update register with new credit and activity data
-	try:
-		db = sqlite3.connect(database)
-	 	cursor = db.cursor()
-		cursor.execute('''UPDATE cuentaUsuarios SET activityCreditExpire = ? WHERE phone = ? ''',
-			      (json.dumps(activityDict), phone))
-		db.commit()
-	except Exception as e:
-		# Roll back any change if something goes wrong
-		db.rollback()
-		raise e
-	finally: 
+    activityDict[activity] = '@'.join((credits,expireDate))
+    fechaHumana = strftime("%d %b %Y", localtime(float(expireDate)))
+    print("En {0} tiene {1} creditos hasta el {2} inclusive".format(activity, credits, fechaHumana))
+    # Now update register with new credit and activity data
+    try:
+        db = sqlite3.connect(database)
+        cursor = db.cursor()
+        cursor.execute('''UPDATE cuentaUsuarios SET activityCreditExpire = ? WHERE phone = ? ''',
+             (json.dumps(activityDict), phone))
+        db.commit()
+    except Exception as e:
+        # Roll back any change if something goes wrong
+        db.rollback()
+        raise e
+    finally:
 		cursor.close()
 
 
