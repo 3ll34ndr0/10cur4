@@ -640,7 +640,7 @@ def modifyRegisterCredit(database, phoneNumber, activity, newCredits, name=None,
         db.rollback()
         raise e
     finally:
-		cursor.close()
+        cursor.close()
 
 
 #db = sqlite3.connect('j1rn4s10')
