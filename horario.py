@@ -59,11 +59,11 @@ class Horario(object):
         Params: initHour, endHour,quota
         '''
         if participant == None:
-			participantSet = set([])
+            participantSet = set([])
         elif type(participant) is str: # Only one element given
-			participantSet = set([participant])
+            participantSet = set([participant])
         else:
-			participantSet = set(participant)
+            participantSet = set(participant)
         self.horarios[initHour] = [endHour,quota,participantSet]
     def removeParticipant(self,initHour,participant):
 		'''
