@@ -349,13 +349,13 @@ def createHumanDate(day,month,hour,mins):
 
 
 def createActivityRegister(
-		database, 
-		activity,
-		initHour=None,
-		endHour=None,
-		quota='1', 
-		description=None, 
-		vCalendar=None):
+        database,
+        activity,
+        initHour=None,
+        endHour=None,
+        quota='1',
+        description=None,
+        vCalendar=None):
     """
     Creo una entrada en la tabla con 'activity' y un horario.
     En cada tabla de actividad puedo agregar mas de un horario, por ejemplo: 
@@ -369,25 +369,25 @@ def createActivityRegister(
     # Construyo el objeto tipo Horario:
     objetoHorario = Horario(activity,initHour,endHour,quota) 
     #print(objetoHorario.__dict__)
-    horarios	  = json.dumps(objetoHorario, default=jdefault)
-    try:	
+    horarios      = json.dumps(objetoHorario, default=jdefault)
+    try:
         db = sqlite3.connect(database)
-	cursor = db.cursor()
-	cursor.execute(
-	'''INSERT INTO activityCalendar(act, horarios, quota, description, vCalendar)
-	VALUES(?,?,?,?,?)''', (activity, horarios, quota, description, vCalendar))
-	print("DEBUG: Register %s, %s, %s, %s , %s added"% (activity, horarios, quota, description, vCalendar))
-	db.commit()
+        cursor = db.cursor()
+        cursor.execute(
+        '''INSERT INTO activityCalendar(act, horarios, quota, description, vCalendar)
+         VALUES(?,?,?,?,?)''', (activity, horarios, quota, description, vCalendar))
+        print("DEBUG: Register %s, %s, %s, %s , %s added"% (activity, horarios, quota, description, vCalendar))
+        db.commit()
     except sqlite3.IntegrityError as e:
-	db.rollback()
-	print("Existing record...")
-	print(e) # Son necesarios los raise?, por las dudas lo saque para que no falle.
+        db.rollback()
+        print("Existing record...")
+        print(e) # Son necesarios los raise?, por las dudas lo saque para que no falle.
     except sqlite3.OperationalError as e:
-	db.rollback()
-	print("DEBUG: Diferenciar el tipo de error")
-	raise e
+        db.rollback()
+        print("DEBUG: Diferenciar el tipo de error")
+        raise e
     finally:
-	cursor.close()
+        cursor.close()
 
 
 def modifyActivityRegister(
