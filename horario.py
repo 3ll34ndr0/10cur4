@@ -54,7 +54,7 @@ class Horario(object):
             return message
 
 
-	def addAppointment(self,initHour,endHour,quota='1', participant=None):
+    def addAppointment(self,initHour,endHour,quota='1', participant=None):
 		'''
 		Params: initHour, endHour,quota
 		'''
@@ -65,10 +65,10 @@ class Horario(object):
 		else:
 			participantSet = set(participant)
 		self.horarios[initHour] = [endHour,quota,participantSet]
-	def removeParticipant(self,initHour,participant):
+    def removeParticipant(self,initHour,participant):
 		'''
 		Method to remove a participant from a given appointment
-		Params: initHour, participant 
+		Params: initHour, participant
 		participant: It is the participant's telephone number,
 		it can be a set, a list, or a string
 
