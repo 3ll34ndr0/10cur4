@@ -524,55 +524,54 @@ def createAppointmentDB(database):
 
 
 def createUserRegisterDB(
-		database=None,
-		phone=None,
-		name=None, 
-		activity=None, 
-		credit=None, 
-		vCard=None, 
-		expDate=None):
+    database=None,
+    phone=None,
+    name=None, 
+    activity=None, 
+    credit=None, 
+    vCard=None, 
+    expDate=None):
     """
-	activity, credit and the expire date is stored
-	in a Dictionary using activity as string key.
-	Credit and ExpireDate will be stored as  should be as credit@expireDate.
-	expireDate will be calculated on fly when credits are added.	
-	Example: '{"act1" : "cred1@date1", "act2" : "cred2@date2", "act3" : ... }' 
-	expDate should be in a defined format (for example: DD-MM-YYYY)
+    activity, credit and the expire date is stored
+    in a Dictionary using activity as string key.
+    Credit and ExpireDate will be stored as  should be as credit@expireDate.
+    expireDate will be calculated on fly when credits are added.
+    Example: '{"act1" : "cred1@date1", "act2" : "cred2@date2", "act3" : ... }'
+    expDate should be in a defined format (for example: DD-MM-YYYY)
     """
     db = sqlite3.connect(database)
-	# Get a cursor object
+    # Get a cursor object
     cursor = db.cursor()
-    if not activity == None: 
-	    # Expire date
-	    if expDate == None:
-		    expDate = str(time() + 2628000)  #2628000 secs in a month 365.0/12
-	    else:
-		    print("TODO: Check if date is in the defined format DD-MM-YYYY, and convert it to epoch time")
+    if not activity == None:
+        # Expire date
+        if expDate == None:
+            expDate = str(time() + 2628000)  #2628000 secs in a month 365.0/12
+        else:
+            print("TODO: Check if date is in the defined format DD-MM-YYYY, and convert it to epoch time")
 
-            # Format activity, credits, expDate:
-	    if credit == None: credit = 0 # We have activity but credit was not a given parameter, so make it zero
-
-            creditAtDate = '@'.join((credit,expDate))
-	    dictActivity = {activity: creditAtDate}
-	    activityCreditExpire = json.dumps(dictActivity)
+        # Format activity, credits, expDate:
+        if credit == None: credit = 0 # We have activity but credit was not a given parameter, so make it zero
+        creditAtDate = '@'.join((credit,expDate))
+        dictActivity = {activity: creditAtDate}
+        activityCreditExpire = json.dumps(dictActivity)
     else:
-	    activityCreditExpire = activity # None
-    try:	
+        activityCreditExpire = activity # None
+    try:
         cursor.execute('''INSERT INTO cuentaUsuarios(phone, name, activityCreditExpire, vCard)
-	VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard.encode('utf-8')))
-	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
-	db.commit()
-	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
+        VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard.encode('utf-8')))
+        print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
+        db.commit()
+        print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
     except sqlite3.IntegrityError as e:
-	db.rollback()
-	print("WARNING: Phone number {} already exists! Nothing done.".format(phone))
-	#raise e
+        db.rollback()
+        print("WARNING: Phone number {} already exists! Nothing done.".format(phone))
+        #raise e
     except sqlite3.OperationalError as e:
-	db.rollback()
-	#print("la garlopa")
-	raise e
+        db.rollback()
+        #print("la garlopa")
+        raise e
     finally:
-	cursor.close()
+        cursor.close()
 
 
 def getUserRegister(database,phoneNumber):
