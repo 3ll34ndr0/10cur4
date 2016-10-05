@@ -48,9 +48,9 @@ class Horario(object):
                 message.format(participant,self.name,initHour)
         except KeyError as e:
             message = "Message: There is no appointment for {} at {}".format(self.name, initHour)
-            print message
+            print(message)
         finally:
-            print message
+            print(message)
             return message
 
 
