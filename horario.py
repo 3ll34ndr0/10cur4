@@ -66,31 +66,30 @@ class Horario(object):
             participantSet = set(participant)
         self.horarios[initHour] = [endHour,quota,participantSet]
     def removeParticipant(self,initHour,participant):
-		'''
-		Method to remove a participant from a given appointment
-		Params: initHour, participant
-		participant: It is the participant's telephone number,
-		it can be a set, a list, or a string
-
-		'''
-		message = ''
-		try:
-			if type(participant) is str: # It is only one number
-				print("tb es str")
-				participant = set([participant])
-			elif type(participant) is list:
-				participant = set(participant)
-			newPart = self.horarios[initHour][2] - participant # new participants' set
-			self.horarios[initHour][2] = newPart # update set
-			if participant == set([]):
-			    message = "Message: {} has been removed at {}".format(participant, initHour)
-		except KeyError as e:
-			message = "Message: {} has no appointment to {} at {}".format(participant,self.name, initHour)
-		except Exception as e: # Is this catch all error needed?
-			message = "Message: Exception for catch all error"
-			raise e
-		finally:
-			return message 
+        '''
+        Method to remove a participant from a given appointment
+        Params: initHour, participant
+        participant: It is the participant's telephone number,
+        it can be a set, a list, or a string
+        '''
+        message = ''
+        try:
+            if type(participant) is str: # It is only one number
+                print("tb es str")
+                participant = set([participant])
+            elif type(participant) is list:
+                participant = set(participant)
+            newPart = self.horarios[initHour][2] - participant # new participants' set
+            self.horarios[initHour][2] = newPart # update set
+            if participant == set([]):
+                message = "Message: {} has been removed at {}".format(participant, initHour)
+        except KeyError as e:
+            message = "Message: {} has no appointment to {} at {}".format(participant,self.name, initHour)
+        except Exception as e: # Is this catch all error needed?
+            message = "Message: Exception for catch all error"
+            raise e
+        finally:
+            return message
 
 
 
