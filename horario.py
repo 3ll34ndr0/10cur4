@@ -1,69 +1,64 @@
 class Horario(object):
-	'''
-	Objeto para guardar el horario de una actividad
-	TODO: Quizas seria mas legible si fuese este formato:
-	{'horarios': {{'initHour':'10'}: [{'endHour':'11'}, {'quota':'3'}, {'participants':set(['351519348', '35151938', '3515204597'])]}}, 'name': 'Bldy'}
-	Quota is 1 as default
-	'''
-	def __init__(self,
-		     activity,
-		     initHour,
-		     endHour,
-		     quota='1',
-		     participant=None):
-		appointment 	= {}
-		turnos	 	= {}
-		if participant is not None:
-			if type(participant) is str: # If it is only one number, create a list
-				participant = [participant]
-			if len(participant) > quota:
-				return "Message: Quota is smaller than participants' number"
-			else:
-				participantSet = set(participant)
-		else: 
-			participantSet = set([])
-		appointment[initHour] = [endHour,quota,participantSet]
-		turnos[activity] = appointment
-		self.name	= activity
-		self.horarios = turnos[activity]
-	def addParticipant(self,initHour,participant):
-		'''
-		Method to add a participant to an appointment		
-		Params: initHour, participant
-		participant: It is the participant's telephone number 
-		'''
-		try:
-			message  = 'Message: adding {} ...'.format(participant)
-			totalP = str(len(self.horarios[initHour][2]))
-			qota   = self.horarios[initHour][1]
-			if type(participant) is str:
-				participant = [participant]
-			newP   = len(participant)
-			if totalP == qota:
-			   message += '\nFailed: Turno completo, no se puede inscribir'
-			elif (newP + int(totalP)) > int(qota):
-		           message += "\nFailed: No puede reservar {} lugare/s".format(str(newP))
-			   message += ", la disponibilidad es de {}".format((str(int(qota)-int(totalP))))
-			else:
-			   self.horarios[initHour][2].update(participant)
-			   message += "Success:{0} has been added to".format(participant)
-			   message += " {1} at {2}\n".format(self.name,initHour)
-			   message += "AdminMessage: {3} participants"
-			   message += "in {4} at {5}"
-			   message.format(participant,self.name,initHour)
-		except KeyError as e:
-			message = "Message: There is no appointment for {} at {}".format(self.name, initHour)
-			print message
-		finally:
-			print message
-			return message 
+    '''
+    Objeto para guardar el horario de una actividad
+    TODO: Quizas seria mas legible si fuese este formato:
+    {'horarios': {{'initHour':'10'}: [{'endHour':'11'}, {'quota':'3'}, {'participants':set(['351519348', '35151938', '3515204597'])]}}, 'name': 'Bldy'}
+    Quota is 1 as default
+    '''
+    def __init__(self,activity,initHour,endHour,quota='1',participant=None):
+        appointment	= {}
+        turnos      = {}
+        if participant is not None:
+            if type(participant) is str: # If it is only one number, create a list
+                participant = [participant]
+            if len(participant) > quota:
+                return "Message: Quota is smaller than participants' number"
+            else:
+                participantSet = set(participant)
+        else:
+            participantSet = set([])
+        appointment[initHour] = [endHour,quota,participantSet]
+        turnos[activity] = appointment
+        self.name	= activity
+        self.horarios = turnos[activity]
+    def addParticipant(self,initHour,participant):
+        '''
+        Method to add a participant to an appointment
+        Params: initHour, participant
+        participant: It is the participant's telephone number
+        '''
+        try:
+            message  = 'Message: adding {} ...'.format(participant)
+            totalP = str(len(self.horarios[initHour][2]))
+            qota   = self.horarios[initHour][1]
+            if type(participant) is str:
+                participant = [participant]
+            newP   = len(participant)
+            if totalP == qota:
+                message += '\nFailed: Turno completo, no se puede inscribir'
+            elif (newP + int(totalP)) > int(qota):
+                message += "\nFailed: No puede reservar {} lugare/s".format(str(newP))
+                message += ", la disponibilidad es de {}".format((str(int(qota)-int(totalP))))
+            else:
+                self.horarios[initHour][2].update(participant)
+                message += "Success:{0} has been added to".format(participant)
+                message += " {1} at {2}\n".format(self.name,initHour)
+                message += "AdminMessage: {3} participants"
+                message += "in {4} at {5}"
+                message.format(participant,self.name,initHour)
+        except KeyError as e:
+            message = "Message: There is no appointment for {} at {}".format(self.name, initHour)
+            print message
+        finally:
+            print message
+            return message
 
 
 	def addAppointment(self,initHour,endHour,quota='1', participant=None):
 		'''
 		Params: initHour, endHour,quota
 		'''
-		if participant == None: 
+		if participant == None:
 			participantSet = set([])
 		elif type(participant) is str: # Only one element given
 			participantSet = set([participant])
