@@ -413,63 +413,63 @@ def modifyActivityRegister(
     # Primero tengo que obtener de la base de datos, lo que haya
     activityRegister = getActivityRegister(database, activity)
     if activityRegister[0] == activity:
-           # Luego transformalo en un objeto clase Horario
-	   horarios = json.loads(activityRegister[1]) 
-	   h = horarios['horarios']
-	   for key in h.viewkeys():
-	       objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
-	       #print("dentro el for")
-	       #print(h[key][2])
-	       #print(objetoHorario.horarios[key][2])
-	       # Recupero los valores para no pisarlos despues (solo el que modifica)
-               if initHour == key:
-	             participantsReg = objetoHorario.horarios[key][2]
-		     #print("aca")
-		     #print objetoHorario.horarios
-		     #print(participantsReg)
-		     if participants is not None:
-			#print("New participants, but recovering old ones: {}".format(participantsReg))
-#			#print(participantsReg)
-		        participantsReg.update(participants)
-		     if endHour     == None:
-		        endHour = objetoHorario.horarios[key][0]
-		     if quota       == '1':
-		        quota = objetoHorario.horarios[key][1]
-               else:
-		     print("Appointment {key} is not going to be modified".format(key))
-	       #print("{}, {}, {}, {}".format(key, h[key][0],h[key][1],participantsReg))
-	   
-           # Ya tengo el objeto, ahora puedo actualizarlo:
-	   objetoHorario.addAppointment(initHour,endHour,quota, participantsReg)
-           horariosJSON  = json.dumps(objetoHorario, default=jdefault)
-	   #print(horariosJSON)
-    else: 
-	   return "Message: Not such activity defined"
-    try:	
-	db = sqlite3.connect(database)
+        # Luego transformalo en un objeto clase Horario
+        horarios = json.loads(activityRegister[1])
+        h = horarios['horarios']
+        for key in h.viewkeys():
+            objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
+            #print("dentro el for")
+            #print(h[key][2])
+            #print(objetoHorario.horarios[key][2])
+            # Recupero los valores para no pisarlos despues (solo el que modifica)
+            if initHour == key:
+                participantsReg = objetoHorario.horarios[key][2]
+                #print("aca")
+                #print objetoHorario.horarios
+                #print(participantsReg)
+                if participants is not None:
+                    #print("New participants, but recovering old ones: {}".format(participantsReg))
+                    ##print(participantsReg)
+                    participantsReg.update(participants)
+            if endHour     == None:
+                endHour = objetoHorario.horarios[key][0]
+            if quota       == '1':
+                quota = objetoHorario.horarios[key][1]
+        else:
+            print("Appointment {key} is not going to be modified".format(key))
+        #print("{}, {}, {}, {}".format(key, h[key][0],h[key][1],participantsReg))
+
+        # Ya tengo el objeto, ahora puedo actualizarlo:
+        objetoHorario.addAppointment(initHour,endHour,quota, participantsReg)
+        horariosJSON  = json.dumps(objetoHorario, default=jdefault)
+        #print(horariosJSON)
+    else:
+        return "Message: Not such activity defined"
+    try:
+        db = sqlite3.connect(database)
         cursor = db.cursor()
-	# Aca va un update only horario column.
-	cursor.execute(
-	'''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''', (horariosJSON, activity))
-	message = "Message: {}, ".format(horariosJSON)
-	if description is not None:
-	    cursor.execute(
-	    '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, activity))
-            message += "{}, ".format(description) 
-	if vCalendar is not None:
-	    cursor.execute(
-	    '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, activity))
-	    message += "{}, ".format(vCalendar) 
-	message += "added to {}".format(activity) 
-	db.commit()
+        # Aca va un update only horario column.
+        cursor.execute(
+        '''UPDATE activityCalendar SET horarios = ? WHERE act = ? ''', (horariosJSON, activity))
+        message = "Message: {}, ".format(horariosJSON)
+        if description is not None:
+            cursor.execute(
+            '''UPDATE activityCalendar SET description = ? WHERE act = ? ''', (description, activity))
+            message += "{}, ".format(description)
+        if vCalendar is not None:
+            cursor.execute(
+            '''UPDATE activityCalendar SET vCalendar = ? WHERE act = ? ''', (vCalendar, activity))
+            message += "{}, ".format(vCalendar) 
+        message += "added to {}".format(activity) 
+        db.commit()
     except sqlite3.IntegrityError as e:
-	db.rollback()
-	raise e
+        db.rollback()
+        raise e
     except sqlite3.OperationalError as e:
-	db.rollback()
-	raise e
+        db.rollback()
+        raise e
     finally:
-	cursor.close()
+        cursor.close()
     return message
 
 def addActivityParticipant(
@@ -490,37 +490,37 @@ def getActivityRegister(database, activity):
 	otraLista = lista.fetchone()
 #	print otraLista
 	cursor.close()
-	return otraLista # I could return data as: Name, activity (n credits expire on 'expireDate') 
+	return otraLista # I could return data as: Name, activity (n credits expire on 'expireDate')
 
 
 
 def createAppointmentDB(database):
-    """ 
-        Database's name should be related to the client's market 
-        Creates a database with: phone, name, activityCreditExpireDate, vCard 
+    """
+        Database's name should be related to the client's market
+        Creates a database with: phone, name, activityCreditExpireDate, vCard
 	Phone number should include international code
     """
     try:
-	db = sqlite3.connect(database)
-	# Get a cursor object
-	cursor = db.cursor()
-	cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS cuentaUsuarios(phone TEXT PRIMARY KEY, 
-                         	name TEXT, activityCreditExpire TEXT, vCard TEXT)
-		       ''')
+        db = sqlite3.connect(database)
+        # Get a cursor object
+        cursor = db.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS cuentaUsuarios(phone TEXT PRIMARY KEY, 
+            name TEXT, activityCreditExpire TEXT, vCard TEXT)
+            ''')
 	# En principio solo uso act y horarios. En horarios guardo un json serializando un objeto clase Horarios
-	cursor.execute('''
-		    CREATE TABLE IF NOT EXISTS activityCalendar(act TEXT PRIMARY KEY, 
-                    horarios TEXT, quota TEXT, description TEXT, vCalendar TEXT)
-		       ''')
-	db.commit()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS activityCalendar(act TEXT PRIMARY KEY, 
+            horarios TEXT, quota TEXT, description TEXT, vCalendar TEXT)
+            ''')
+        db.commit()
     except Exception as e:
-	# Roll back any change if something goes wrong
-	db.rollback()
-	raise e
+        # Roll back any change if something goes wrong
+        db.rollback()
+        raise e
     finally:
         # Close the connection database
-	cursor.close()
+        cursor.close()
 
 
 def createUserRegisterDB(
