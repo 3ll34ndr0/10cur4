@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import json
 import locale
 from dbapi import formatDate, createUserRegisterDB
@@ -53,6 +53,7 @@ class ManageAppointments(ActivityRegister):
      self.phoneNumber = phoneNumber
      self.initHour    = "0" # This initHour is a dummy value, just to start the object. Could I use it to store any useful data on it, like participants are the admins of that activity.
      self.timeTuple = None # (year,month,day,hour,minute)
+     self.accountType = 'unknown'
      try:
         if activity is None:
             self.database,self.activity = databaseAccess[self.phoneNumber]
@@ -107,6 +108,9 @@ class ManageAppointments(ActivityRegister):
 			credit,
 			vCard,
 			expDate)
+          texto = "El teléfono {} se agendó a nombre de {}".format(phonedata,name)
+          print(texto)
+          return(phonedata,name)
 
 
 

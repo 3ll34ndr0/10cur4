@@ -562,6 +562,7 @@ def createUserRegisterDB(
 	VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard.encode('utf-8')))
 	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
 	db.commit()
+	print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
     except sqlite3.IntegrityError as e:
 	db.rollback()
 	print("WARNING: Phone number {} already exists! Nothing done.".format(phone))
