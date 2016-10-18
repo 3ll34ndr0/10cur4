@@ -49,9 +49,12 @@ for [owner,database,activity] in hongaPors:                         #
 class ManageAppointments(ActivityRegister):
    """This class will give access to all method defined in the dbapi, and extend its functionality
       with lots of verifications before actually calling those methods... """
-   def __init__(self, phoneNumber,activity=None):
+   def __init__(self, phoneNumber,activity=None,initHour="0"):
+     #initHour is a datetime object
      self.phoneNumber = phoneNumber
-     self.initHour    = "0" # This initHour is a dummy value, just to start the object. Could I use it to store any useful data on it, like participants are the admins of that activity.
+     self.initHour    = str(formatDate(now.timetuple()[:5])[2]) 
+     # If none given, the value will be "0",just to start the object
+     # the initHour is converted to epoch time in string
      self.timeTuple = None # (year,month,day,hour,minute)
      self.accountType = 'unknown'
      try:
@@ -68,7 +71,7 @@ class ManageAppointments(ActivityRegister):
         print("or there is no activity named as {}".format(activity))
    def makeAppointment(self,phoneNumber,activity,initHour):
       """ Add one phoneNumber to a given activity's initHour, if it exists and if the phone is
-       in the database. """
+       in the database. The initHour is a datetime object."""
       # Check if telephone exists in database (and also if at least has any
       # register in activities credits):
       try:
@@ -102,12 +105,12 @@ class ManageAppointments(ActivityRegister):
           phonedata = vcObj.contents['tel'][0].value
           phone = phonedata.lstrip('+').replace(' ','').replace('-','') #Not very elegant, but ...
           createUserRegisterDB(self.database,
-		        phone,
-			name,
-			activity,
-			credit,
-			vCard,
-			expDate)
+            phone,
+            name,
+            activity,
+            credit,
+            vCard,
+            expDate)
           texto = "El teléfono {} se agendó a nombre de {}".format(phonedata,name)
           print(texto)
           return(phonedata,name)
