@@ -52,7 +52,8 @@ class ManageAppointments(ActivityRegister):
    def __init__(self, phoneNumber,activity=None,initHour="0"):
      #initHour is a datetime object
      self.phoneNumber = phoneNumber
-     self.initHour    = str(formatDate(now.timetuple()[:5])[2]) 
+#     self.initHour    = str(formatDate(now.timetuple()[:5])[2])
+     self.initHour = initHour
      # If none given, the value will be "0",just to start the object
      # the initHour is converted to epoch time in string
      self.timeTuple = None # (year,month,day,hour,minute)
