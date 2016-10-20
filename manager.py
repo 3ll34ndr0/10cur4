@@ -2,7 +2,7 @@
 # coding: utf-8
 import json
 import locale
-from dbapi import formatDate, createUserRegisterDB
+from dbapi import formatDate, createUserRegisterDB, dateTime2EpochString
 import time
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
@@ -49,14 +49,17 @@ for [owner,database,activity] in hongaPors:                         #
 class ManageAppointments(ActivityRegister):
    """This class will give access to all method defined in the dbapi, and extend its functionality
       with lots of verifications before actually calling those methods... """
-   def __init__(self, phoneNumber,activity=None,initHour="0"):
+   def __init__(self, phoneNumber,activity=None,initHour=None):
      #initHour is a datetime object
      self.phoneNumber = phoneNumber
 #     self.initHour    = str(formatDate(initHour.timetuple()[:5])[2])
-     self.initHour    = str(time.mktime(initHour.timetuple()))
+     if initHour is None:
+         self.initHour = "0"
+     else:
+         self.initHour    = dateTime2EpochString(initHour)
+     #self.initHour    = str(time.mktime(initHour.timetuple()))
      # If none given, the value will be "0",just to start the object
      # the initHour is converted to epoch time in string
-     self.timeTuple = None # (year,month,day,hour,minute)
      self.accountType = 'unknown'
      try:
         if activity is None:
