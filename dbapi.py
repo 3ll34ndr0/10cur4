@@ -282,7 +282,7 @@ class ActivityRegister(object):
       horarios = json.loads(getActivityRegister(self.database,self.activity)[1])
       h = horarios['horarios']
       # Get all keys from 'horarios'
-      keys = list(h.viewkeys())
+      keys = list(h.keys())
       # Get the first key and create the object
       key = keys.pop()
       objetoHorario = Horario(self.activity, key, h[key][0], h[key][1], h[key][2])
@@ -422,7 +422,7 @@ def modifyActivityRegister(
         # Luego transformalo en un objeto clase Horario
         horarios = json.loads(activityRegister[1])
         h = horarios['horarios']
-        for key in h.viewkeys():
+        for key in h.keys():
             objetoHorario = Horario(activity, key, h[key][0], h[key][1], h[key][2])
             #print("dentro el for")
             #print(h[key][2])

@@ -11,7 +11,7 @@ class Horario(object):
         if participant is not None:
             if type(participant) is str: # If it is only one number, create a list
                 participant = [participant]
-            if len(participant) > quota:
+            if len(participant) > int(quota):
                 return "Message: Quota is smaller than participants' number"
             else:
                 participantSet = set(participant)
