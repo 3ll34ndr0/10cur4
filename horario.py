@@ -91,5 +91,3 @@ class Horario(object):
         finally:
             return message
 
-
-
