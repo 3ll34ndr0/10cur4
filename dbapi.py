@@ -40,10 +40,16 @@ class ActivityRegister(object):
             try:
                 # Because we added one new initHour, need to write it to database
                 self.writeDatabase(objetoHorario)
-                # Update this object with database values
-                self.__init__(self.database,self.activity,self.initHour)
+                # Update this object with database values <- This caused a bug
+                # when used from class ManageAppointments, when initHour was
+                # a new value to add. It seems that it was copied from other
+                # method of this class. Calling __init__ from __init__ when
+                # used from a super class caused a AtributeError.
+                #self.__init__(self.database,self.activity,self.initHour)
                 areg = getActivityRegister(database,activity)
                 ar = json.loads(getActivityRegister(database,activity)[1])
+            except AttributeError as e:
+                raise e
             except Exception as e:
                 #"Failed trying to write to database"
                 raise e
@@ -677,7 +683,11 @@ def formatDate(timeTuple):
       Fecha_str = t.strftime("%A %d %B %Y")
       horaFecha = mktime(t.timetuple())
    hora_str = datetime.time(hour,minute).strftime("%H:%M%p")
-   return (hora_str,Fecha_str,horaFecha) 
+   return (hora_str,Fecha_str,horaFecha)
+
+def dateTime2EpochString(datetimeObj):
+    from time import mktime
+    return str(int(mktime(datetimeObj.timetuple())))
 
 class HandleDateTime(datetime):
     def __init__(self,ano,mes,dia,hora=0,minuto=0):
