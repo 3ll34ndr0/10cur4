@@ -144,9 +144,10 @@ class ManageAppointments(ActivityRegister):
         try:
             with open("databaseName.txt", "w") as file:
                 file.write(databaseName)
-            createAppointmentDB(dbName)
+            createAppointmentDB(databaseName)
+            return "DB Succesfully created"
         except:
-            print("DEBUG: UUUps... creation of new database file failed")
+            return "DEBUG: UUUps... creation of new database file failed"
 
 
 class VistaMinable(ActivityRegister):
