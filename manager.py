@@ -2,7 +2,7 @@
 # coding: utf-8
 import json
 import locale
-from dbapi import formatDate, createUserRegisterDB, dateTime2EpochString
+from dbapi import formatDate, createUserRegisterDB, dateTime2EpochString, createAppointmentDB
 import time
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
@@ -16,21 +16,27 @@ from dbapi import ActivityRegister, getUserRegister, humanActivityCreditsExpire
 #####################################################################
 # This code could be in a separate file and import the dictionary   #
 # from that "module".                                               #
-# Get a list of phones and database with hongaPor privileges        #
-with open("/home/lean/arena/10cur4/hongaPors.txt", "r") as file:                            #
+# Get a list of phones and activities for staff priviledges          #
+with open("/home/lean/arena/10cur4/hongaPors.txt", "r") as file:    #
    hongaPors = file.readlines()                                     #
                                                                     #
 hongaPors = map(lambda pl: pl.rstrip('\n').split(','),hongaPors)    #
                                                                     #
 databaseAccess = dict()                                             #
-for [owner,database,activity] in hongaPors:                         #
-   databaseAccess[owner] = database,activity                        #
+for i in hongaPors:                         #
+    databaseAccess[i[0]] = i[1:]            #
 #####################################################################
 # Now whenever I want to access a database, I use the following     #
 # dictionary:                                                       #
-# databaseName,defaultActivity = databaseAccess[telephoneNumber]    #
+# defaultActivity = databaseAccess[telephoneNumber]    #
 #                                                                   #
 #####################################################################
+# DATABASE NAME
+with open('databaseName.txt','r') as f:
+    databaseName = f.read()
+
+
+
 # TODO: Crear método que reserve turno y descuente crédito (sólo puede tener crédito negativo de -1?, creo
 #       que no tiene que tener límites ó al menos diferenciar actividades con créditos o sin créditos). Y que envíe un pedido de confirmación al/la responsable de la actividad para aceptarla o no.
 
@@ -52,27 +58,38 @@ class ManageAppointments(ActivityRegister):
    def __init__(self, phoneNumber,activity=None,initHour=None):
      #initHour is a datetime object
      self.phoneNumber = phoneNumber
-#     self.initHour    = str(formatDate(initHour.timetuple()[:5])[2])
+     self.activity    = activity
      if initHour is None:
          self.initHour = "0"
      else:
          self.initHour    = dateTime2EpochString(initHour)
-     #self.initHour    = str(time.mktime(initHour.timetuple()))
-     # If none given, the value will be "0",just to start the object
-     # the initHour is converted to epoch time in string
      self.accountType = 'unknown'
      try:
-        if activity is None:
-            self.database,self.activity = databaseAccess[self.phoneNumber]
-        else:
-            self.database,_ = databaseAccess[self.phoneNumber]
-            self.activity   = activity
-        super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
-        self.accountType     = "manager"
-        self.defaultActivity = activity
+        # Defaulta DATABASE NAME
+        with open('databaseName.txt','r') as f:
+             self.database = f.read()
+
+#        super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
+        if self.phoneNumber in databaseAccess.keys():
+            self.accountType = "staff"
+            if activity is None:
+                self.activity = databaseAccess[self.phoneNumber][0] #default activity
+            else:
+                self.activity = activity
+
      except KeyError as e:
-        print("Error: Your telephone's number has no access to this system")
+        print("Error: Your telephone's number has no admin access to this system")
         print("or there is no activity named as {}".format(activity))
+     except:
+         print("Error: No database yet created!")
+
+   def addStaff(self,phoneNumber,defaultActivity):
+       pass
+
+   def createAppointment(self):
+       if self.accountType == "staff":
+           super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
+
    def makeAppointment(self,phoneNumber,activity,initHour):
       """ Add one phoneNumber to a given activity's initHour, if it exists and if the phone is
        in the database. The initHour is a datetime object."""
@@ -119,6 +136,17 @@ class ManageAppointments(ActivityRegister):
           print(texto)
           return(phonedata,name)
 
+   def setup(databaseName):
+        """
+        Create a new database, staff permitions are not lost 'cause it is
+        stored in a different file.
+        """
+        try:
+            with open("databaseName.txt", "w") as file:
+                file.write(databaseName)
+            createAppointmentDB(dbName)
+        except:
+            print("DEBUG: UUUps... creation of new database file failed")
 
 
 class VistaMinable(ActivityRegister):
@@ -138,7 +166,7 @@ class VistaMinable(ActivityRegister):
         self.phoneNumber = phoneNumber
         self.activity    = activity
         self.initHour    = "0" # This initHour is a dummy value, just to start the object. Could I use it to store any useful data on it, like participants are the admins of that activity.
-        self.database    = databaseAccess[self.phoneNumber]
+        self.database    = databaseAccess[self.phoneNumber] #this is broken
         self.timeTuple   = None # (year,month,day,hour,minute)
         try:
            super(VistaMinable, self).__init__(self.database,self.activity,self.initHour)
