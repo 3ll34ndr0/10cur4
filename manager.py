@@ -136,7 +136,7 @@ class ManageAppointments(ActivityRegister):
           print(texto)
           return(phonedata,name)
 
-   def setup(databaseName):
+   def setup(self,databaseName):
         """
         Create a new database, staff permitions are not lost 'cause it is
         stored in a different file.
