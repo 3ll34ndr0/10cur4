@@ -582,13 +582,22 @@ def createUserRegisterDB(
 
 def getUserRegister(database,phoneNumber):
    """Returns (phone, name, activityCreditsExpire,vCard) from database"""
-   db = sqlite3.connect(database) #I should use try here
-   telefono = (phoneNumber,)
-   cursor = db.cursor()
-   lista = cursor.execute('SELECT * FROM cuentaUsuarios WHERE phone=?', telefono)
-   otraLista = lista.fetchone()
-   cursor.close()
-   return otraLista # Should I return data as: Name, activity (n credits expire on 'expireDate')? 
+   try:
+       t = (phoneNumber,)
+       db = sqlite3.connect(database) 
+       cursor = db.cursor()
+       c = cursor.execute('SELECT * FROM cuentaUsuarios WHERE phone=?', t)
+       fetchedData = c.fetchone()
+   except Exception as e:
+       # Roll back any change if something goes wrong, is this really necesary
+       # if I'm only reading from database?
+       db.rollback()
+       raise e
+   finally:
+       cursor.close()
+
+   return fetchedData # Should I return data as: Name, activity (n credits expire on 'expireDate')? 
+
 
 def humanActivityCreditsExpire(activityCreditsExpire):
    """Will give you a dictionary with the activity as the key, and a tuple with credits and expire date
