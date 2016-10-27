@@ -90,7 +90,7 @@ class ManageAppointments(ActivityRegister):
        if self.accountType == "staff":
            super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
 
-   def makeAppointment(self,phoneNumber,activity,initHour):
+   def makeAppointment(self,phoneNumber,activity,initHour): #Should I remove the parameter here?
       """ Add one phoneNumber to a given activity's initHour, if it exists and if the phone is
        in the database. The initHour is a datetime object."""
       # Check if telephone exists in database (and also if at least has any
@@ -99,11 +99,11 @@ class ManageAppointments(ActivityRegister):
          phone, name, activityCreditsExpire, vCard = getUserRegister(self.database, phoneNumber)
          if activityCreditsExpire is not None:
             actCreditsDict = humanActivityCreditsExpire(activityCreditsExpire)
-         print(phone, name, activityCreditsExpire, vCard)
          self.timeTuple = initHour
+         print("{}, {}, {}, {}".format(phone, name, activityCreditsExpire, vCard))
       except TypeError as e:
-         print("Error: That phone number does not belong to any registered user.")
-         raise e
+         return "Error: That phone number does not belong to any registered user."
+         #raise e
       # Done with checking if phone is in user's database.
       # Check if the activity initHour exists:
       initHourEpoch= formatDate(initHour.timetuple()[0:5])[2]
@@ -112,12 +112,15 @@ class ManageAppointments(ActivityRegister):
                                                                          minute = 0)))
       print(initHour,map(lambda x: time.localtime(x),aaps))
       if initHourEpoch in aaps:
-             print("Bingoooo!")
              print("available appointment at {}".format(initHour))
+             # Now make the friggin' appointment:
+             #      ar = ActivityRegister(
+             return "Bingoooo!"
       else:
-             print("Message: No available appointment at {}".format(initHour))
-      # Now make the friggin' appointment:
-      #      ar = ActivityRegister(
+             return "Message: No available appointment at {}".format(initHour)
+   def getUserRegister(self):
+	   return getUserRegister(self.database,self.phoneNumber)
+
    def createUserRegisterFromVCard(self,vCard,activity=None,credit=None,expDate=None):
           import vobject
 #   if (activity or credit) is not None: return "You must give both values: activity and credits. Or you can give nither of them"
@@ -135,6 +138,9 @@ class ManageAppointments(ActivityRegister):
           texto = "El teléfono {} se agendó a nombre de {}".format(phonedata,name)
           print(texto)
           return(phonedata,name)
+
+   def createUserRegisterDB(phone, name, activity, credit, vCard, expDate)
+
 
    def setup(self,databaseName):
         """
