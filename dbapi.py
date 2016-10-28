@@ -532,10 +532,10 @@ def createAppointmentDB(database):
 def createUserRegisterDB(
     database=None,
     phone=None,
-    name=None, 
-    activity=None, 
-    credit=None, 
-    vCard=None, 
+    name=None,
+    activity=None,
+    credit=None,
+    vCard=None,
     expDate=None):
     """
     activity, credit and the expire date is stored
@@ -563,22 +563,22 @@ def createUserRegisterDB(
     else:
         activityCreditExpire = activity # None
     try:
+        t = (phone, name, activityCreditExpire, vCard.encode('utf-8'))
         cursor.execute('''INSERT INTO cuentaUsuarios(phone, name, activityCreditExpire, vCard)
-        VALUES(?,?,?,?)''', (phone, name, activityCreditExpire, vCard.encode('utf-8')))
-        print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
+                       VALUES(?,?,?,?)''', t)
         db.commit()
-        print("Register %s, %s, %s, %s added"% (phone, name, activityCreditExpire, vCard.encode('utf-8')))
+        print("Register %s, %s, %s, %s added"% t)
     except sqlite3.IntegrityError as e:
         db.rollback()
-        print("WARNING: Phone number {} already exists! Nothing done.".format(phone))
+        return "WARNING: Phone number {} already exists! Nothing done.".format(phone)
         #raise e
     except sqlite3.OperationalError as e:
         db.rollback()
-        #print("la garlopa")
+        print(e)
         raise e
     finally:
         cursor.close()
-
+    return "New Register Done..."
 
 def getUserRegister(database,phoneNumber):
    """Returns (phone, name, activityCreditsExpire,vCard) from database"""
@@ -595,7 +595,6 @@ def getUserRegister(database,phoneNumber):
        raise e
    finally:
        cursor.close()
-
    return fetchedData # Should I return data as: Name, activity (n credits expire on 'expireDate')? 
 
 

@@ -119,7 +119,17 @@ class ManageAppointments(ActivityRegister):
       else:
              return "Message: No available appointment at {}".format(initHour)
    def getUserRegister(self):
-	   return getUserRegister(self.database,self.phoneNumber)
+        return getUserRegister(self.database,self.phoneNumber)
+
+   def createUserRegisterDB(self,
+                            phoneNumber,
+                            name,
+                            activity=None,
+                            credit=None,
+                            vCard=None,
+                            expDate=None):
+        return createUserRegisterDB(self.database,phoneNumber,name,activity,credit,vCard,expDate)
+
 
    def createUserRegisterFromVCard(self,vCard,activity=None,credit=None,expDate=None):
           import vobject
@@ -139,7 +149,6 @@ class ManageAppointments(ActivityRegister):
           print(texto)
           return(phonedata,name)
 
-   def createUserRegisterDB(phone, name, activity, credit, vCard, expDate)
 
 
    def setup(self,databaseName):
