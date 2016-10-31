@@ -83,7 +83,7 @@ class ActivityRegister(object):
          toTimeEpoch = fromTimeEpoch + 86400 # plus one day in seconds
 
 #      first get the initHours for the day
-      appointmentsHours = json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys()
+      appointmentsHours = list(json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys())
       appointmentsHours.sort()
       appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
 #      if humanOutput is True:
