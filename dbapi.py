@@ -545,6 +545,9 @@ def createUserRegisterDB(
     Example: '{"act1" : "cred1@date1", "act2" : "cred2@date2", "act3" : ... }'
     expDate should be in a defined format (for example: DD-MM-YYYY)
     """
+    if vCard is not None:
+        vCard = vCard.encode('utff-8')
+
     db = sqlite3.connect(database)
     # Get a cursor object
     cursor = db.cursor()
@@ -563,7 +566,7 @@ def createUserRegisterDB(
     else:
         activityCreditExpire = activity # None
     try:
-        t = (phone, name, activityCreditExpire, vCard.encode('utf-8'))
+        t = (phone, name, activityCreditExpire, vCard)
         cursor.execute('''INSERT INTO cuentaUsuarios(phone, name, activityCreditExpire, vCard)
                        VALUES(?,?,?,?)''', t)
         db.commit()
