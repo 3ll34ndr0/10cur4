@@ -485,18 +485,27 @@ def addActivityParticipant(
 		telephone):
     return modifyActivityParticipant(database,activity,initHour,telephone)
 
+def getActivitiesNames(database):
+    """
+    Return all activities' names.
+    return: str with all activities' names
+    """
+    db     = sqlite3.connect(database)
+    cursor = db.cursor()
+    c      = cursor.execute('SELECT * FROM activityCalendar')
+    activities = list()
+    for register in c.fetchall():      # TODO: This is very ram consuming...
+        activities.append(register[0]) # Try other approach
+    return activities
 
 
 def getActivityRegister(database, activity):
 	db = sqlite3.connect(database)
-	actividad= (activity,) # Convert it to a tuple to use it in the 'execute'  
+	actividad= (activity,) # Safe way to retrieve data from database
 	cursor = db.cursor()
-	lista = cursor.execute('SELECT * FROM activityCalendar WHERE act=?', actividad)
-#	print lista
-	otraLista = lista.fetchone()
-#	print otraLista
+	lista = cursor.execute('SELECT * FROM activityCalendar WHERE act=?',actividad).fetchone()
 	cursor.close()
-	return otraLista # I could return data as: Name, activity (n credits expire on 'expireDate')
+	return lista # I could return data as: Name, activity (n credits expire on 'expireDate')
 
 
 

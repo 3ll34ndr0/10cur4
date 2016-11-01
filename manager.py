@@ -2,7 +2,9 @@
 # coding: utf-8
 import json
 import locale
-from dbapi import formatDate, createUserRegisterDB, dateTime2EpochString, createAppointmentDB
+from dbapi import formatDate, createUserRegisterDB, dateTime2EpochString, createAppointmentDB, getActivitiesNames
+
+
 import time
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
@@ -129,6 +131,12 @@ class ManageAppointments(ActivityRegister):
                             vCard=None,
                             expDate=None):
         return createUserRegisterDB(self.database,phoneNumber,name,activity,credit,vCard,expDate)
+
+   def getActivitiesNames(self):
+    """
+    Return all activities names.
+    """
+    return getActivitiesNames(self.database)
 
 
    def createUserRegisterFromVCard(self,vCard,activity=None,credit=None,expDate=None):
