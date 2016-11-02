@@ -72,15 +72,18 @@ class ActivityRegister(object):
     def reportAvailableAppointments(self, onDay = None, untilDay = None,
                                    humanOutput = False):
       """onDay is expected to be a datetime object """
+      print("DEBUG: onDay = {}".format(onDay))
       if onDay is None: # For today
-         fromTimeEpoch = time() # From now on
-         toTimeEpoch   = formatDate((date.today() + timedelta(1)).timetuple()[0:5])[2]
+        fromTimeEpoch = time() # From now on
+        toTimeEpoch   = formatDate((date.today() + timedelta(1)).timetuple()[0:5])[2]
       else:             # Or any other day
-         fromTimeEpoch = formatDate(onDay.timetuple()[0:5])[2]
+        #fromTimeEpoch = formatDate(onDay.timetuple()[0:5])[2]
+        fromTimeEpoch = dateTime2Epoch(onDay)
       if untilDay is not None:
-         toTimeEpoch = formatDate((untilDay + timedelta(1)).timetuple()[0:5])[2]
+#        toTimeEpoch = formatDate((untilDay + timedelta(1)).timetuple()[0:5])[2]
+        toTimeEpoch = dateTime2Epoch(untilDay)
       else:
-         toTimeEpoch = fromTimeEpoch + 86400 # plus one day in seconds
+        toTimeEpoch = fromTimeEpoch + 86400 # plus one day in seconds
 
 #      first get the initHours for the day
       print("And the activity is: {}".format(self.activity))
@@ -717,6 +720,11 @@ def formatDate(timeTuple):
 def dateTime2EpochString(datetimeObj):
     from time import mktime
     return str(int(mktime(datetimeObj.timetuple())))
+
+def dateTime2Epoch(datetimeObj):
+    from time import mktime
+    return mktime(datetimeObj.timetuple())
+
 
 class HandleDateTime(datetime):
     def __init__(self,ano,mes,dia,hora=0,minuto=0):
