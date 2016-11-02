@@ -75,7 +75,7 @@ class ManageAppointments(ActivityRegister):
         if self.phoneNumber in databaseAccess.keys():
             self.accountType = "staff"
             if activity is None:
-                self.activity = databaseAccess[self.phoneNumber][0] #default activity
+                self.activity = databaseAccess[self.phoneNumber][1] #default activity
             else:
                 self.activity = activity
 
