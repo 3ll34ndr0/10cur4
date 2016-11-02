@@ -90,7 +90,7 @@ class ActivityRegister(object):
       appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
       if humanOutput is True:
           c2dt = datetime.fromtimestamp
-          appointmentsForTheday = map(lambda date: c2dt(float(date)).strftime("%c").rstrip('EST'), appointmentsForTheday)
+          appointmentsForTheday = map(float, appointmentsForTheday)
 
       return appointmentsForTheday
 
