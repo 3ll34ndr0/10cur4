@@ -88,10 +88,11 @@ class ActivityRegister(object):
       appointmentsHours.sort()
 
       appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
+      print(appointmentsForTheDay)
       if humanOutput is True:
           c2dt = datetime.fromtimestamp
-          appointmentsForTheday = map(float, appointmentsForTheday)
-
+          appss= map(float, appointmentsForTheday)
+          print(apss)
       return appointmentsForTheday
 
 
