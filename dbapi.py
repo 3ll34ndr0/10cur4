@@ -87,7 +87,6 @@ class ActivityRegister(object):
       appointmentsHours = list(json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys())
       appointmentsHours.sort()
       appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
-      print(appointmentsForTheDay)
       if humanOutput is True:
           c2dt = datetime.fromtimestamp
           appss= map(float, appointmentsForTheday)
