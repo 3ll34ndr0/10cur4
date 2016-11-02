@@ -91,10 +91,9 @@ class ActivityRegister(object):
       print(appointmentsForTheday)
       if humanOutput is True:
           print("entra al humanOutput")
-          c2dt = datetime.fromtimestamp
           appss = list()
           appss= appointmentsForTheday
-          print(apss)
+          print(appss)
       return appointmentsForTheday
 
 
