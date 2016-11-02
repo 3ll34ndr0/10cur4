@@ -92,9 +92,9 @@ class ActivityRegister(object):
       if humanOutput is True:
           print("entra al humanOutput")
           appss = list()
-          appss= appointmentsForTheday
+          appss= map(float,appointmentsForTheday)
           print(appss)
-      return appointmentsForTheday
+      return appss
 
 
 
