@@ -88,7 +88,7 @@ class ActivityRegister(object):
       appointmentsHours.sort()
       appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
 #      if humanOutput is True:
-#        appointmentsForTheday =
+#          appointmentsForTheday = map(lambda date: date
       return appointmentsForTheday
 
 
