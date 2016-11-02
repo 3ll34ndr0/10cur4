@@ -71,10 +71,9 @@ class ManageAppointments(ActivityRegister):
         with open('databaseName.txt','r') as f:
              self.database = f.read()
 
-#        super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
         if self.phoneNumber in databaseAccess.keys():
             self.accountType = "staff"
-            if activity is None:
+            if self.activity is None:
                 self.activity = databaseAccess[self.phoneNumber][0] #default activity
             else:
                 self.activity = activity
