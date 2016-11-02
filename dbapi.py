@@ -85,6 +85,7 @@ class ActivityRegister(object):
 #      first get the initHours for the day
       print("And the activity is: {}".format(self.activity))
       appointmentsHours = list(json.loads(getActivityRegister(self.database,self.activity)[1])['horarios'].keys())
+      print(appointmentsHours)
       appointmentsHours.sort()
       appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
       if humanOutput is True:
