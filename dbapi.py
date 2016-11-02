@@ -91,8 +91,8 @@ class ActivityRegister(object):
       print(appointmentsForTheday)
       if humanOutput is True:
           print("entra al humanOutput")
-          appss = list()
-          appss= map(float,appointmentsForTheday)
+          magic = datetime.fromtimestamp
+          appss= [magic(float(date)) for x in appointmentsForTheday]
           print(appss)
       return appss
 
