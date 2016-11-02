@@ -92,7 +92,7 @@ class ActivityRegister(object):
       if humanOutput is True:
           print("entra al humanOutput")
           magic = datetime.fromtimestamp
-          appss= [magic(float(x)).strftime("%c") for x in appointmentsForTheday]
+          appss= [magic(float(x)).strftime("%c").rstrip(':00') for x in appointmentsForTheday]
           print(appss)
       return appss
 
