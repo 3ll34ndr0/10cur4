@@ -91,3 +91,17 @@ class Horario(object):
         finally:
             return message
 
+    def deleteAppointment(self,initHour):
+        """
+        Method to delete the appointment for initHour
+        """
+        try:
+            if type(initHour) is str:
+                message = self.horarios.pop(initHour)
+            else:
+                message = "Error: #69"
+        except Exception as e:
+            message = e
+        finally:
+            return message 
+
