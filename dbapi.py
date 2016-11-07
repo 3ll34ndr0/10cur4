@@ -249,9 +249,9 @@ class ActivityRegister(object):
             # Update object with database values
             self.__init__(self.database,self.activity,self.initHour)
 
-    def delete(self,initHour):
+    def deleteInitHour(self):
         """
-        Method to remove participants, OR erase all information for a given initHour
+        Method to delete the appointment at the self.initHour for the self.activity
         """
         objetoHorario = self.loadReg()
         # Remove participants
@@ -259,7 +259,7 @@ class ActivityRegister(object):
         # Write to database
         self.writeDatabase(objetoHorario)
         # Update object with database values
-        self.__init__(self.database,self.activity,self.initHour)
+        self.__init__(self.database,self.activity, "0") # "0" initHour given because it was deleted
 
 
 
