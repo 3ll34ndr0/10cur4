@@ -96,12 +96,9 @@ class Horario(object):
         Method to delete the appointment for initHour
         """
         try:
-            if type(initHour) is str:
-                message = self.horarios.pop(initHour)
-            else:
-                message = "Error: #69"
+            message = self.horarios.pop(initHour)
         except Exception as e:
-            message = e
+            raise e
         finally:
             return message 
 

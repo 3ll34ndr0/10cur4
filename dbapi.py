@@ -93,14 +93,20 @@ class ActivityRegister(object):
       appointmentsForTheday = [ap for ap in  appointmentsHours if float(ap) > fromTimeEpoch and float(ap) < toTimeEpoch]
       print(appointmentsForTheday)
       if humanOutput is True:
-          print("entra al humanOutput")
-          magic = datetime.fromtimestamp
-          appss = [magic(float(x)).strftime("%c").rstrip('00 ').rstrip(':') for x in appointmentsForTheday]
-          formatedAppss = "_*Turnos Disponibles:*_\n"
-          for date in appss:
-              formatedAppss += date + '\n'
-          print(formatedAppss)
-      return formatedAppss
+          if len(appointmentsForTheday) == 0:
+              reply = "" #The neutro element for string concatenation hehe
+          else: 
+              print("entra al humanOutput")
+              magic = datetime.fromtimestamp
+              appss = [magic(float(x)).strftime("%c").rstrip('00 ').rstrip(':') for x in appointmentsForTheday]
+              formatedAppss = "*{}:*\n".format(self.activity)
+              for date in appss:
+                  formatedAppss += date + '\n'
+              print(formatedAppss)
+              reply = formatedAppss
+      else:
+          reply = appointmentsForTheday
+      return reply
 
 
 
@@ -255,11 +261,15 @@ class ActivityRegister(object):
         """
         objetoHorario = self.loadReg()
         # Remove participants
-        objetoHorario.deleteAppointment(self.initHour)
+        answer = objetoHorario.deleteAppointment(self.initHour) # TODO: take into account
+	# that if the appointment had somebody subscribed to, it should at least warn the
+	# admin, or mesage the numbers in the list.
+        reply = "Se eliminó la actividad {} a las {}".format(self.activity, self.initHour)
         # Write to database
         self.writeDatabase(objetoHorario)
         # Update object with database values
-        self.__init__(self.database,self.activity, "0") # "0" initHour given because it was deleted
+        self.__init__(self.database,self.activity,None) # None initHour given because it was deleted
+        return reply
 
 
 
