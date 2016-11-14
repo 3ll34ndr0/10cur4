@@ -108,7 +108,11 @@ class ActivityRegister(object):
           reply = appointmentsForTheday
       return reply
 
-
+    def makeAppointment(self,participants):
+        """
+        Make the appointment for the self.activity and the given telephone number
+        """
+        self.update(participants=participants)
 
     def rawReport(self):
         """Outputs all users and its data
@@ -208,14 +212,15 @@ class ActivityRegister(object):
                 # Create a list with numbers to add to participants:
                 addParticipants = set([item for item in participants if item.isdigit()])
             # Remove participants
-            objetoHorario.removeParticipant(self.initHour,delParticipants)
+            message = objetoHorario.removeParticipant(self.initHour,delParticipants)
             # Add participants
-            objetoHorario.addParticipant(self.initHour,addParticipants)
+            message = objetoHorario.addParticipant(self.initHour,addParticipants)
         # Now that everything was done this auxiliary Horario object, dump it to DDDBB:
         # Write to database
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
         self.__init__(self.database,self.activity,self.initHour)
+        return message
 #END of def update
     def cancelAppointment(self, participants):
         """Method to cancel the appointment of 'participants' from the current initHour"""

@@ -115,8 +115,8 @@ class ManageAppointments(ActivityRegister):
       if initHourEpoch in aaps:
              print("available appointment at {}".format(initHour))
              # Now make the friggin' appointment:
-             #      ar = ActivityRegister(
-             return "Bingoooo!"
+             return self.makeAppointment(phoneNumber)
+#             return "Bingoooo!"
       else:
              return "Message: No available appointment at {}".format(initHour)
    def getUserRegister(self):
