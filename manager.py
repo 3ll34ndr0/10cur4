@@ -93,14 +93,16 @@ class ManageAppointments(ActivityRegister):
 
    def makeAppointment(self,phoneNumber): #Should I remove the parameter here?
       """ Add one phoneNumber to a given activity's initHour, if it exists and if the phone is
-       in the database. The initHour is a datetime object."""
+       in the database. The initHour is a datetime object and should be already
+       in the instance object
+       """
       # Check if telephone exists in database (and also if at least has any
       # register in activities credits):
       try:
          phone, name, activityCreditsExpire, vCard = getUserRegister(self.database, phoneNumber)
          if activityCreditsExpire is not None:
             actCreditsDict = humanActivityCreditsExpire(activityCreditsExpire)
-         self.timeTuple = initHour
+         initHour = self.initHour
          print("{}, {}, {}, {}".format(phone, name, activityCreditsExpire, vCard))
       except TypeError as e:
          return "Error: That phone number does not belong to any registered user."
