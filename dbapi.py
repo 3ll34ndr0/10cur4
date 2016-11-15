@@ -229,10 +229,11 @@ class ActivityRegister(object):
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
         print("El tipo de objeto de self es: {}".format(type(self)))
-        if type(self) is "<class 'manager.ManageAppointments'>":
+        if type(self) == "<class 'manager.ManageAppointments'>":
+            print("Entroooooo!!!!!!!!!!!!!!!!!!!")
             from datetime import datetime
             magic = datetime.fromtimestamp
-            self.__init__(self.database,self.activity,magic(self.initHour))
+            self.__init__(self.database,self.activity,magic(float(self.initHour)))
         else:
             self.__init__(self.database,self.activity,self.initHour)
         return message
