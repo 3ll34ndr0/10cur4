@@ -17,7 +17,7 @@ class Horario(object):
                 participantSet = set(participant)
         else:
             participantSet = set([])
-        appointment[initHour] = [endHour,quota,participantSet]
+        appointment[initHour] = [endHour,quota,participantSet] #TAG_1
         turnos[activity] = appointment
         self.name	= activity
         self.horarios = turnos[activity]
@@ -27,11 +27,11 @@ class Horario(object):
         Params: initHour, participant
         participant: It is the participant's telephone number
         '''
+        _, qota, participants = self.horarios[initHour] # Look to TAG_1 
         try:
             message  = 'Message: adding {} ... '.format(participant)
-            message += "Inscriptos: {}".format(self.participants)
-            totalP = str(len(self.horarios[initHour][2]))
-            qota   = self.horarios[initHour][1]
+            message += "Inscriptos: {}".format(participants)
+            totalP = str(len(participants))
             if type(participant) is str:
                 participant = [participant]
             newP   = len(participant)
