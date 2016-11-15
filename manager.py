@@ -104,8 +104,10 @@ class ManageAppointments(ActivityRegister):
          print("1")
          if activityCreditsExpire is not None:
             actCreditsDict = humanActivityCreditsExpire(activityCreditsExpire)
+            print("1.1")
          print("2")
          initHour = magic(self.initHour)
+         print("2.1")
          print("{}, {}, {}, {}".format(phone, name, activityCreditsExpire, vCard))
       except TypeError as e:
          return "Error: That phone number does not belong to any registered user."
