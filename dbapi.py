@@ -230,13 +230,16 @@ class ActivityRegister(object):
         # Update this object with database values
         print("El tipo de objeto de self es: {}".format(type(self)))
         print("El tipo de {} es: {}".format(self.initHour,type(self.initHour)))
-        if type(self.initHour) is str:
+        print("El mensaje es: {}".format(message))
+        if type(self.initHour) is str: # TODO: check if self is a
+                                       # ManageAppointment instance, instead
             print("Entroooooo!!!!!!!!!!!!!!!!!!!")
             from datetime import datetime
-            magic = datetime.fromtimestamp
-            self.__init__(self.database,self.activity,magic(float(self.initHour)))
+            magic += datetime.fromtimestamp
+            message = self.__init__(self.database,self.activity,magic(float(self.initHour)))
+            print("El otro message es: {}".format(message))
         else:
-            self.__init__(self.database,self.activity,self.initHour)
+            message += self.__init__(self.database,self.activity,self.initHour)
         return message
 #END of def update
     def cancelAppointment(self, participants):
