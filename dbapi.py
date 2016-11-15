@@ -115,7 +115,7 @@ class ActivityRegister(object):
         """
         Make the appointment for the self.activity and the given telephone number
         """
-        self.update(participants=participants)
+        return self.update(participants=participants)
 
     def rawReport(self):
         """Outputs all users and its data
