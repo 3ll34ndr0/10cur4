@@ -3,7 +3,6 @@
 import json
 import locale
 from dbapi import formatDate, createUserRegisterDB, dateTime2EpochString, createAppointmentDB, getActivitiesNames
-from datetime import datetime
 
 import time
 # This should be tied to a configuration file:
@@ -98,6 +97,7 @@ class ManageAppointments(ActivityRegister):
        """
       # Check if telephone exists in database (and also if at least has any
       # register in activities credits):
+      from datetime import datetime
       magic = datetime.fromtimestamp
       try:
          phone, name, activityCreditsExpire, vCard = getUserRegister(self.database, phoneNumber)
