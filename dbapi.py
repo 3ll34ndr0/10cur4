@@ -236,7 +236,7 @@ class ActivityRegister(object):
             print("Entroooooo!!!!!!!!!!!!!!!!!!!")
             from datetime import datetime
             magic = datetime.fromtimestamp
-            message = self.__init__(self.database,self.activity,magic(float(self.initHour)))
+            message += self.__init__(self.database,self.activity,magic(float(self.initHour)))
             print("El otro message es: {}".format(message))
         else:
             message += self.__init__(self.database,self.activity,self.initHour)
