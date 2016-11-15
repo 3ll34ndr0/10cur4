@@ -304,6 +304,7 @@ class ActivityRegister(object):
         Useful method that only writes to DDBB
         """
         horariosJSON  = json.dumps(objetoHorario, default=jdefault)
+        print("A grabar la database!!!!!!!!!!!!!!")
         try:
             db = sqlite3.connect(self.database)
             cursor = db.cursor()
