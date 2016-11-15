@@ -106,7 +106,7 @@ class ManageAppointments(ActivityRegister):
             actCreditsDict = humanActivityCreditsExpire(activityCreditsExpire)
             print("1.1: {}".format(actCreditsDict))
          print("2: {} is type {} ".format(self.initHour,type(self.initHour)))
-         initHour = magic(self.initHour)
+         initHour = magic(float(self.initHour))
          print("2.1")
          print("{}, {}, {}, {}".format(phone, name, activityCreditsExpire, vCard))
       except TypeError as e:
