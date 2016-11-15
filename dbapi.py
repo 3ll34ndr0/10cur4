@@ -188,7 +188,8 @@ class ActivityRegister(object):
         else:
             self.endHour = endHour
         if quota   == '1':
-            quota = self.quota
+            if hasattr(self,'quota'):
+               quota = self.quota
         else:
             self.quota = quota
         #
