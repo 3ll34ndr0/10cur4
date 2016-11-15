@@ -3,7 +3,7 @@
 import json
 import locale
 from dbapi import formatDate, createUserRegisterDB, dateTime2EpochString, createAppointmentDB, getActivitiesNames
-
+from datetime import datetime
 
 import time
 # This should be tied to a configuration file:
@@ -98,18 +98,20 @@ class ManageAppointments(ActivityRegister):
        """
       # Check if telephone exists in database (and also if at least has any
       # register in activities credits):
+      magic = datetime.fromtimestamp
       try:
          phone, name, activityCreditsExpire, vCard = getUserRegister(self.database, phoneNumber)
          if activityCreditsExpire is not None:
             actCreditsDict = humanActivityCreditsExpire(activityCreditsExpire)
-         initHour = self.initHour
+         initHour = magic(self.initHour)
          print("{}, {}, {}, {}".format(phone, name, activityCreditsExpire, vCard))
       except TypeError as e:
          return "Error: That phone number does not belong to any registered user."
          #raise e
       # Done with checking if phone is in user's database.
       # Check if the activity initHour exists:
-      initHourEpoch= formatDate(initHour.timetuple()[0:5])[2]
+#      initHourEpoch= formatDate(initHour.timetuple()[0:5])[2]
+      initHourEpoch = float(self.initHour)
       aaps = map(float,
                  self.reportAvailableAppointments(onDay=initHour.replace(hour   = 0,
                                                                          minute = 0)))
