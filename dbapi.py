@@ -12,7 +12,8 @@ import locale
 from time import time,localtime,strftime
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
-sys.path.append('/home/lean/arena/10cur4')
+from sys.path import append 
+append('/home/lean/arena/10cur4')
 from manager import ManageAppointments
 
 class ActivityRegister(object):
