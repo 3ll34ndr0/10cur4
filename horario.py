@@ -42,7 +42,7 @@ class Horario(object):
                 message += ", la disponibilidad es de {}".format((str(int(qota)-int(totalP))))
                 print(message) 
             else:
-                print("entra al else de addParticipant, la quota es: {}".format(self.quota)
+                print("entra al else de addParticipant, la quota es:{}".format(self.quota))
                 self.horarios[initHour][2].update(participant)
                 message += "Success:{} has been added to {}.".format(participant,self.activity)
 #                message += """ at {}\n""".format(initHour)
