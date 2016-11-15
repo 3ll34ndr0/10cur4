@@ -195,7 +195,11 @@ class ActivityRegister(object):
         #
         objetoHorario = self.loadReg()
         # Modify temporarly Horario object with updated values, except for participants
-        objetoHorario.addAppointment(self.initHour,endHour,quota,self.participants)
+        if hasattr(self,'participants'):
+            objetoHorario.addAppointment(self.initHour,endHour,quota,self.participants)
+        else:
+            objetoHorario.addAppointment(self.initHour,endHour,quota)
+
         if participants is not None:
             delParticipants = []
             addParticipants = []
