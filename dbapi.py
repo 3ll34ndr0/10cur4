@@ -12,6 +12,7 @@ import locale
 from time import time,localtime,strftime
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
+from manager import ManageAppointments
 
 class ActivityRegister(object):
     """
