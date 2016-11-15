@@ -44,11 +44,11 @@ class Horario(object):
             else:
                 print("entra al else de addParticipant")
                 self.horarios[initHour][2].update(participant)
-                message += "Success:{} has been added to {}".format(participant,self.activity)
-                message += """ at {}\n""".format(initHour)
-                message += "AdminMessage: {} participants"
+                message += "Success:{} has been added".format(participant)
+#                message += """ at {}\n""".format(initHour)
+#                message += "AdminMessage: {} participants"
 #                message += "in {4} at {5}"
-                message.format(participant,self.name,initHour)
+#                message.format(participant,self.name,initHour)
         except KeyError as e:
             message = "Message: There is no appointment for {} at {}".format(self.name, initHour)
             print(message)
