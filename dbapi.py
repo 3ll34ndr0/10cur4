@@ -225,7 +225,12 @@ class ActivityRegister(object):
         # Write to database
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
-        self.__init__(self.database,self.activity,self.initHour)
+        if isinstance(self,'ManageAppointments'):
+            from datetime import datetime
+            magic = datetime.fromtimestamp
+            self.__init__(self.database,self.activity,magic(self.initHour))
+        else:
+            self.__init__(self.database,self.activity,self.initHour)
         return message
 #END of def update
     def cancelAppointment(self, participants):
