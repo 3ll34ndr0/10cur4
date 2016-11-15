@@ -105,7 +105,7 @@ class ManageAppointments(ActivityRegister):
          if activityCreditsExpire is not None:
             actCreditsDict = humanActivityCreditsExpire(activityCreditsExpire)
             print("1.1: {}".format(actCreditsDict))
-         print("2: {} ".format(self.initHour))
+         print("2: {} is type {} ".format(self.initHour,type(self.initHour)))
          initHour = magic(self.initHour)
          print("2.1")
          print("{}, {}, {}, {}".format(phone, name, activityCreditsExpire, vCard))
