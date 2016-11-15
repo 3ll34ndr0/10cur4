@@ -91,7 +91,7 @@ class ManageAppointments(ActivityRegister):
        if self.accountType == "staff":
            super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
 
-   def makeAppointment(self,phoneNumber): #Should I remove the parameter here?
+   def mkAppointment(self,phoneNumber): #Should I remove the parameter here?
       """ Add one phoneNumber to a given activity's initHour, if it exists and if the phone is
        in the database. The initHour is a datetime object and should be already
        in the instance object
@@ -101,8 +101,10 @@ class ManageAppointments(ActivityRegister):
       magic = datetime.fromtimestamp
       try:
          phone, name, activityCreditsExpire, vCard = getUserRegister(self.database, phoneNumber)
+         print("1")
          if activityCreditsExpire is not None:
             actCreditsDict = humanActivityCreditsExpire(activityCreditsExpire)
+         print("2")
          initHour = magic(self.initHour)
          print("{}, {}, {}, {}".format(phone, name, activityCreditsExpire, vCard))
       except TypeError as e:
@@ -112,14 +114,16 @@ class ManageAppointments(ActivityRegister):
       # Check if the activity initHour exists:
 #      initHourEpoch= formatDate(initHour.timetuple()[0:5])[2]
       initHourEpoch = float(self.initHour)
+      print("initHourEpoch: {}".format(initHourEpoch))
       aaps = map(float,
                  self.reportAvailableAppointments(onDay=initHour.replace(hour   = 0,
                                                                          minute = 0)))
+      print("Appointments: {}".format(aaps))
       print(initHour,map(lambda x: time.localtime(x),aaps))
       if initHourEpoch in aaps:
              print("available appointment at {}".format(initHour))
              # Now make the friggin' appointment:
-             return self.makeAppointment(phoneNumber)
+             return self.mkAppointment(phoneNumber)
 #             return "Bingoooo!"
       else:
              return "Message: No available appointment at {}".format(initHour)
