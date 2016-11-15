@@ -108,7 +108,7 @@ class ActivityRegister(object):
           reply = appointmentsForTheday
       return reply
 
-    def makeAppointment(self,participants):
+    def mkAppointment(self,participants):
         """
         Make the appointment for the self.activity and the given telephone number
         """

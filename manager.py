@@ -91,7 +91,7 @@ class ManageAppointments(ActivityRegister):
        if self.accountType == "staff":
            super(ManageAppointments, self).__init__(self.database,self.activity,self.initHour)
 
-   def mkAppointment(self,phoneNumber): #Should I remove the parameter here?
+   def makeAppointment(self,phoneNumber): #Should I remove the parameter here?
       """ Add one phoneNumber to a given activity's initHour, if it exists and if the phone is
        in the database. The initHour is a datetime object and should be already
        in the instance object
