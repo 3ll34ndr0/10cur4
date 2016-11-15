@@ -12,6 +12,7 @@ import locale
 from time import time,localtime,strftime
 # This should be tied to a configuration file:
 locale.setlocale(locale.LC_ALL,'es_AR.utf8')
+sys.path.append('/home/lean/arena/10cur4')
 from manager import ManageAppointments
 
 class ActivityRegister(object):
@@ -227,7 +228,7 @@ class ActivityRegister(object):
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
         print("El tipo de objeto de self es: {}".format(type(self)))
-        if isinstance(self,manager.ManageAppointments):
+        if isinstance(self,ManageAppointments):
             from datetime import datetime
             magic = datetime.fromtimestamp
             self.__init__(self.database,self.activity,magic(self.initHour))
