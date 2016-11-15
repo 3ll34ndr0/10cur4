@@ -229,7 +229,7 @@ class ActivityRegister(object):
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
         print("El tipo de objeto de self es: {}".format(type(self)))
-        if type(self.initHour) 'str':
+        if type(self.initHour) is 'str':
             print("Entroooooo!!!!!!!!!!!!!!!!!!!")
             from datetime import datetime
             magic = datetime.fromtimestamp
