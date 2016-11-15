@@ -34,6 +34,7 @@ class Horario(object):
             if type(participant) is str:
                 participant = [participant]
             newP   = len(participant)
+            print(qota,totalP)
             if totalP == qota:
                 message += '\nFailed: Turno completo, no se puede inscribir'
                 print(message)
