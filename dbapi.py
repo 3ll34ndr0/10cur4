@@ -183,7 +183,8 @@ class ActivityRegister(object):
         """
         # Update endHour and quota:
         if endHour == None:
-            endHour = self.endHour
+            if hasattr(self,'endHour'):
+               endHour = self.endHour
         else:
             self.endHour = endHour
         if quota   == '1':
