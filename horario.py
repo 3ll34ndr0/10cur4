@@ -36,9 +36,11 @@ class Horario(object):
             newP   = len(participant)
             if totalP == qota:
                 message += '\nFailed: Turno completo, no se puede inscribir'
+                print(message)
             elif (newP + int(totalP)) > int(qota):
                 message += "\nFailed: No puede reservar {} lugare/s".format(str(newP))
                 message += ", la disponibilidad es de {}".format((str(int(qota)-int(totalP))))
+                print(message) 
             else:
                 self.horarios[initHour][2].update(participant)
                 message += "Success:{0} has been added to {}".format(participant,self.name)
