@@ -28,7 +28,7 @@ class Horario(object):
         participant: It is the participant's telephone number
         '''
         try:
-            message  = 'Message: adding {} ...'.format(participant)
+            message  = 'Message: adding {} ... '.format(participant)
             totalP = str(len(self.horarios[initHour][2]))
             qota   = self.horarios[initHour][1]
             if type(participant) is str:
@@ -41,8 +41,8 @@ class Horario(object):
                 message += ", la disponibilidad es de {}".format((str(int(qota)-int(totalP))))
             else:
                 self.horarios[initHour][2].update(participant)
-                message += "Success:{0} has been added to".format(participant)
-                message += " {1} at {2}\n".format(self.name,initHour)
+                message += "Success:{0} has been added to {}".format(participant,self.name)
+                message += """ at {2}\n""".format(initHour)
                 message += "AdminMessage: {3} participants"
                 message += "in {4} at {5}"
                 message.format(participant,self.name,initHour)
