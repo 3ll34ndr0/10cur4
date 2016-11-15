@@ -228,7 +228,7 @@ class ActivityRegister(object):
         # Write to database
         self.writeDatabase(objetoHorario,description=description,vCalendar=vCalendar)
         # Update this object with database values
-        print(message)
+        print("En tioria se grabo la database, y el mje es:{}".format(message))
         if type(self.initHour) is str: # TODO: check if self is a
                                        # ManageAppointment instance, instead
             print("Entroooooo!!!!!!!!!!!!!!!!!!!")
