@@ -28,7 +28,7 @@ class Horario(object):
         participant: It is the participant's telephone number
         '''
         try:
-            message  = 'Message: adding {} ... '.format(participant)
+            message  = 'Message: adding {} ...\n Inscriptos: {}'.format(participant,self.participants)
             totalP = str(len(self.horarios[initHour][2]))
             qota   = self.horarios[initHour][1]
             if type(participant) is str:
