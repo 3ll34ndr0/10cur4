@@ -69,7 +69,7 @@ class ActivityRegisterTest(unittest.TestCase):
 	else:
 		print("Borraré la siguiente lista: ")
 		print(delParticipants)
-	        ar.cancelAppointment(participants=delParticipants)
+        ar.cancelAppointment(participants=delParticipants)
 	print("Y ahora ...")
 	print("agrego a la nueva gilada ...")
         ar.update(participants=self.participants)
@@ -79,18 +79,18 @@ class ActivityRegisterTest(unittest.TestCase):
 	br = ActivityRegister(self.database, self.activity, self.initHour)
 	# New EQUIVALENCE TEST
 	self.assertEqual(set(ar.participants),set(br.participants))
-    def testReport(self):
-       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
-       print(ar.rawReport())
-    def testPeriodmonth(self):
-       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
-       print(ar.periodReport("mensual"))
-    def testPeriodWeek(self):
-       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
-       print(ar.periodReport("semanal"))
-    def testPeriodDay(self):
-       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
-       print(ar.periodReport("diario"))
+#    def testReport(self):
+#       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+#       print(ar.rawReport())
+#    def testPeriodmonth(self):
+#       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+#       print(ar.periodReport("mensual"))
+#    def testPeriodWeek(self):
+#       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+#       print(ar.periodReport("semanal"))
+#    def testPeriodDay(self):
+#       ar = ActivityRegister(database, self.activity, self.initHour,self.endHour,self.quota)
+#       print(ar.periodReport("diario"))
 
 
 ### 

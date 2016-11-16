@@ -28,7 +28,12 @@ class ActivityRegister(object):
 		quota='1'):
         self.database = database
         self.activity = activity
-        self.initHour = initHour
+        if type(initHour) is str:
+            print("Oh sia")
+            self.initHour = initHour
+        else:
+            self.initHour = dateTime2Epoch(initHour)
+            initHour = self.initHour
         self.endHour  = endHour
         self.quota    = quota
         # Try if the appointment exists:
@@ -231,12 +236,12 @@ class ActivityRegister(object):
         print("En tioria se grabo la database, y el mje es:{}".format(message))
         if type(self.initHour) is str: # TODO: check if self is a
                                        # ManageAppointment instance, instead
-            print("Entroooooo!!!!!!!!!!!!!!!!!!!")
+            self.__init__(self.database,self.activity,self.initHour)
+        else:
             from datetime import datetime
             magic = datetime.fromtimestamp
+            print(type(self.initHour))
             self.__init__(self.database,self.activity,magic(float(self.initHour)))
-        else:
-            self.__init__(self.database,self.activity,self.initHour)
         return message
 #END of def update
     def cancelAppointment(self, participants):
